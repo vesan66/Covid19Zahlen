@@ -1,11 +1,15 @@
 # Covid19Zahlen
-## Eine native IOS-App für IPhones ab IOS-Version 14.
 ## Aktuelle Zahlen der Covid 19 Pandemie des RKI.
+### Eine native IOS-App für IPhones ab IOS-Version 14.
 
+<div>
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6676.png">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6677.png">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6678.png">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6679.png">
+</div>
+
+
 
 
 Diese App bezieht ihre Daten aus den öffentlichen Quellen des RKI und stellt diese als Liste dar.
