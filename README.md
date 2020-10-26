@@ -3,13 +3,20 @@
 Eine native IOS-App für IPhones ab IOS-Version 14.
 
 ### Screnshots
-<div>
+<div align="center">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6676.png">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6677.png">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6678.png">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6679.png">
 </div>
-
+<br />
+<br />
+<br />
+<p style="clear: both; float: none;">This is a paragraph.</p>
+<hr>
+<br />
+<br />
+<br />
 ### Beschreibung
 
 Diese App bezieht ihre Daten aus den öffentlichen Quellen des RKI und stellt diese als Liste dar.
