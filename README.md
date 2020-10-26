@@ -1,5 +1,5 @@
 # Covid19Zahlen
-## Aktuelle Zahlen der Covid 19 Pandemie des RKI.
+## Aktuelle Zahlen der Covid 19 Pandemie des RKI auf Landkreisebene in Deutschland.
 Eine native IOS-App für IPhones ab IOS-Version 14.
 
 ### Screnshots
