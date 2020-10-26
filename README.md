@@ -3,6 +3,8 @@
 Eine native IOS-App für IPhones ab IOS-Version 14.
 
 ### Screnshots
+![Favoriten](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6676.png)
+
 <div align="center">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6676.png">
 <img align="left" height="320" src="https://github.com/vesan66/Covid19Zahlen/blob/main/Screenshots/IMG_6677.png">
