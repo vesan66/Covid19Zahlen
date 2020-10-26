@@ -1,6 +1,6 @@
 # Covid19Zahlen
 ## Aktuelle Zahlen der Covid 19 Pandemie des RKI auf Landkreisebene in Deutschland.
-Eine native IOS-App für IPhones ab IOS-Version 14.
+Eine native IOS-App für IPhones ab iOS-Version 14.
 
 ### Screnshots
 ![Favoriten](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6676_klein.png)
