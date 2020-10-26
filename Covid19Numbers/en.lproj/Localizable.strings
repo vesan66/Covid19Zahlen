@@ -1,0 +1,54 @@
+/* 
+  Localizable.strings
+  Covid19Numbers
+
+  Created by Dirk Scheidt on 09.10.20.
+  
+*/
+
+"IDtextInfoTitle" = "About this application";
+"Undefined" = "No error set.";
+"Startup" = "App is starting.";
+"NoError" = "No error.";
+"DataBaseIsEmpty" = "The database is empty.";
+"NoNetwork" = "No network connection.";
+"NoNewDataOnServer" = "No new data on the server.";
+"ManualRefreshTimeBlock" = "Only allowed every %@ minutes.";
+"DatabaseError" = "Database error.";
+"NewDataForDisplay" = "Got new data for display.";
+"ActivationRefreshTimeBlock" = "Refreshblock for weakup application %@ hours).";
+"ErrorGettingData" = "Error getting data.";
+"NoInitalUpdateAllowed" = "No inital update allowed.";
+"CheckingGettingNewData" = "Checking, getting new data.";
+"ID_Landkreise" = "Counties";
+"ID_Landkreis" = "County";
+"ID_Alle" = "All";
+"ID_Alle_Landkreise" = "All counties";
+"ID_Loading" = "Loading data ...";
+"ID_NOData" = "No data";
+"ID_NOFavorites" = "Define some favorites!";
+"ID_Stand" = "Data: ";
+"ID_Search" = "Search ...";
+"ID_Sorting" = "Change Sort Order";
+"ID_SortByCounties" = "Sort by counties from A - Z";
+"ID_7ddesc" = "7 days incidence descending";
+"ID_1ddesc" = "1 day incidence descending";
+"ID_Summen" = "Summaries";
+"ID_Neue_Faelle_am_Tag" = "new Cases at day";
+"ID_Infektionen" = "infections";
+"ID_Verstorben" = "deaths";
+"ID_Genesen" = "recoverd";
+"ID_7TageInzidenz" = "7 days incidence";
+"ID_1TagesInzidenz" = "1 days incidence";
+"ID_InfPro100k" = "infections / 100k";
+"ID_Einwohner" = "residents";
+"ID_County_Abbrev"  = "Cnty-code: ";
+"ID_NewCases" = "new cases";
+"ID_Vortagesdaten" = "day before";
+"ID_7ti" = "7-d.-i.";
+"ID_1ti" = "1-d.-i.";
+"ID_Close" = "close";
+"ID_Sort" = "sort";
+"ID_Top" = "top";
+"ID_Sum" = "summary";
+"ID_Info" = "Info";

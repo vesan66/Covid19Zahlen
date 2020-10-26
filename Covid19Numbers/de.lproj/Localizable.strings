@@ -1,0 +1,54 @@
+/* 
+  Localizable.strings
+  Covid19Numbers
+
+  Created by Dirk Scheidt on 09.10.20.
+  
+*/
+
+"IDtextInfoTitle" = "Über diese Anwendung";
+"Undefined" = "Kein Fehlercode gesetzt.";
+"Startup" = "App startet.";
+"NoError" = "Kein Fehler.";
+"DataBaseIsEmpty" = "Keine Daten in der Datenbank.";
+"NoNetwork" = "Keine Internetverbindung.";
+"NoNewDataOnServer" = "Keine neuen Daten auf dem Server.";
+"ManualRefreshTimeBlock" = "Manuelles update alle %@ Minuten möglich.";
+"DatabaseError" = "Datenbankfehler.";
+"NewDataForDisplay" = "Neue Daten zur Anzeige vorhanden.";
+"ActivationRefreshTimeBlock" = "Automatisches Update bei App-Reaktivierung alle %@ Stunden möglich.";
+"ErrorGettingData" = "Fehler beim Datenbezug.";
+"NoInitalUpdateAllowed" = "Initiales Update nicht erlaubt.";
+"CheckingGettingNewData" = "Auf neue Daten prüfen und laden.";
+"ID_Landkreise" = "Landkreise";
+"ID_Landkreis" = "Landkreis";
+"ID_Alle" = "Alle";
+"ID_Alle_Landkreise" = "Alle Landkreise";
+"ID_Loading" = "Lade Daten ...";
+"ID_NOData" = "Keine Daten";
+"ID_NOFavorites" = "Legen Sie Favoriten an.";
+"ID_Stand" = "Stand: ";
+"ID_Search" = "Suchen ...";
+"ID_Sorting" = "Sortierung ändern";
+"ID_SortByCounties" = "Landkreise von A - Z";
+"ID_7ddesc" = "7-Tage-Inzidenz absteigend";
+"ID_1ddesc" = "1-Tages-Inzidenz absteigend";
+"ID_Summen" = "Summen";
+"ID_Neue_Faelle_am_Tag" = "Neue Fälle am Tag";
+"ID_Infektionen" = "Infektionen";
+"ID_Verstorben" = "Verstorben";
+"ID_Genesen" = "Genesen";
+"ID_7TageInzidenz" = "7-Tage-Inzidenz";
+"ID_1TagesInzidenz" = "1-Tage-Inzidenz";
+"ID_InfPro100k" = "Infektionen / 100k";
+"ID_Einwohner" = "Einwohner";
+"ID_County_Abbrev"  = "AGS: ";
+"ID_NewCases" = "neue Fälle";
+"ID_Vortagesdaten" = "Vortagesdaten";
+"ID_7ti" = "7-T.-Inz.";
+"ID_1ti" = "1-T.-Inz.";
+"ID_Close" = "schließen";
+"ID_Sort" = "sortieren";
+"ID_Top" = "oben";
+"ID_Sum" = "Summen";
+"ID_Info" = "Info";
