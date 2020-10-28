@@ -27,10 +27,17 @@ class UserStorage: NSObject {
     private let applicationVersionKey = "UD_VERSION" + appMode.asSuffix()
     private let databaseIsNotEmptyKey = "databaseIsNotEmpty" + appMode.asSuffix()
     private let sortOrderKey = "sortOrder" + appMode.asSuffix()
+    private let removeLastDownloadKey = "removeLastDownload" + appMode.asSuffix()
+    
     
     private var onWantsResetFunc: () -> () = {
         () -> () in
         Logger.log.error("onWantsResetFunc not set.")
+    }
+    
+    private var onRemoveLastDowloadFunc: () -> () = {
+        () -> () in
+        Logger.log.error("onRemoveLastDowloadFunc not set.")
     }
     
     override private init() {
@@ -46,10 +53,22 @@ class UserStorage: NSObject {
                 self.onWantsResetFunc()
             }
         }
+        let removeLastDownalod = self.removeLastDownload
+        if removeLastDownalod == true {
+            Logger.log.notice("User initiated removeLastDownload.")
+            DispatchQueue.main.async() {
+                self.removeLastDownload = false
+                self.onRemoveLastDowloadFunc()
+            }
+        }
     }
     
     public func onWantsReset(function: @escaping ()-> ()) {
         self.onWantsResetFunc = function
+    }
+    
+    public func onRemoveLastDowload(function: @escaping ()-> ()) {
+        self.onRemoveLastDowloadFunc = function
     }
     
     public var userWantsReset: Bool {
@@ -61,6 +80,14 @@ class UserStorage: NSObject {
         }
     }
     
+    public var removeLastDownload: Bool {
+        get {
+            return UserDefaults.standard.bool(forKey: removeLastDownloadKey)
+        }
+        set {
+            UserDefaults.standard.set(Bool(newValue), forKey: removeLastDownloadKey)
+        }
+    }
     
     func GetSetVersionAndBuild(){
         let versionNumber: String = Bundle.main.object(forInfoDictionaryKey: UserStorage.BundleKeys.BundleShortVersionString) as! String
@@ -163,6 +190,7 @@ class UserStorage: NSObject {
         self.isFirstStart = false // Cause it's running now!
         self.databaseIsEmpty = true
         self.sortOrder = .alphabetic
+        self.removeLastDownload = false
         UserDefaults.standard.synchronize()
     }
     

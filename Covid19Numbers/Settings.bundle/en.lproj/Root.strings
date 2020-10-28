@@ -1,10 +1,13 @@
 
 /* English */
 
-"Settings" = "Settings";
+"ResetDB" = "Remove all data";
 "Reset" = "Reset";
 "Reset the application to factory settings." = "Reset the application to factory settings.";
 "About" = "About";
 "Copyright © 2020 Dirk Scheidt." = "Copyright © 2020 Dirk Scheidt. All rights reserved.";
 "Version" = "Version";
 "Privacy Protection" = "Privacy Protection";
+"RemoveLast" = "Remove a day";
+"Remove" = "Remove";
+"Remove the last download." = "Remove the last download.";

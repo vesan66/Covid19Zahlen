@@ -334,6 +334,26 @@ public final class AppController: NSObject, AppControllerFunctions {
         self.WipeDataBase()
     }
     
+    private func RemoveLastDay() {
+        Logger.funcStart.notice("RemoveLastDay")
+        self.hideInfoFrame()
+        
+        if self.sqliteMan.DataBaseIsEmptyAwait() == false {
+            let lastDateTime1000 = self.sqliteMan.GetNewestDateTime1000Await() ?? 0
+            if lastDateTime1000 > 0 {
+                let result = self.sqliteMan.DeleteDayAwait(datetime1000: lastDateTime1000)
+                if result == true {
+                    let lastDateTime1000 = self.sqliteMan.GetNewestDateTime1000Await() ?? 0
+                    UserStorage.share.latestTimeStampAtLocalDB = lastDateTime1000
+                    UserStorage.share.lastManualUpdateTry = 0
+                    if self.sqliteMan.DataBaseIsEmptyAwait() == true {
+                        UserStorage.share.databaseIsEmpty = true
+                    }
+                    self.GetAndDisplayData()
+                }
+            }
+        }
+    }
     
     private func start_Database() {
         // Create and Open the Database
@@ -357,6 +377,7 @@ public final class AppController: NSObject, AppControllerFunctions {
         UserStorage.share.CheckForFirstStartAndInitialize()
         UserStorage.share.GetSetVersionAndBuild()
         UserStorage.share.onWantsReset(function: self.ResetApplication)
+        UserStorage.share.onRemoveLastDowload(function: self.RemoveLastDay)
     }
     
     private func WipeDataBase() {

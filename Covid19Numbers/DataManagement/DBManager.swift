@@ -767,7 +767,44 @@ class DBManager: NSObject {
         return result
     }
     
-
+    
+    public func DeleteDayAwait(datetime1000: Int64) -> Bool {
+        Logger.funcStart.notice("DeleteDayAwait")
+        var result: Bool = false
+        
+        serialQueue.sync { [weak self] in
+            guard let self = self else { return }
+            result = self.DeleteDay(datetime1000: datetime1000)
+        }
+        return result
+    }
+    
+    
+    private func DeleteDay(datetime1000: Int64)->Bool {
+        Logger.funcStart.notice("DeleteDay")
+        var result: Bool = false
+        if datetime1000 > 0 {
+            let deleteStatementStirng = "DELETE FROM cases WHERE datetime1000 = ?;"
+            var deleteStatement: OpaquePointer? = nil
+            if sqlite3_prepare_v2(db, deleteStatementStirng, -1, &deleteStatement, nil) == SQLITE_OK {
+                sqlite3_bind_int64(deleteStatement, 1, Int64(datetime1000))
+                if sqlite3_step(deleteStatement) == SQLITE_DONE {
+                    Logger.log.notice("Successfully deleted rows.")
+                    result = true
+                } else {
+                    Logger.log.error("Could not delete row.")
+                }
+            } else {
+                Logger.log.error("DELETE statement could not be prepared")
+            }
+            sqlite3_finalize(deleteStatement)
+        } else {
+            Logger.log.error("Datetime1000 is zero.")
+        }
+        return result
+    }
+    
+    
 }
 
 // MARK: - GetLastTwoDaysOfCovidCasesForDisplay -

@@ -12,7 +12,7 @@
             <key>Type</key>
             <string>PSGroupSpecifier</string>
             <key>Title</key>
-            <string>Settings</string>
+            <string>ResetDB</string>
             <key>FooterText</key>
             <string>Reset the application to factory settings.</string>
         </dict>
@@ -23,6 +23,24 @@
             <string>Reset</string>
             <key>Key</key>
             <string>userWantsReset</string>
+            <key>DefaultValue</key>
+            <false/>
+        </dict>
+        <dict>
+            <key>Type</key>
+            <string>PSGroupSpecifier</string>
+            <key>Title</key>
+            <string>RemoveLast</string>
+            <key>FooterText</key>
+            <string>Remove the last download.</string>
+        </dict>
+        <dict>
+            <key>Type</key>
+            <string>PSToggleSwitchSpecifier</string>
+            <key>Title</key>
+            <string>Remove</string>
+            <key>Key</key>
+            <string>removeLastDownload</string>
             <key>DefaultValue</key>
             <false/>
         </dict>
