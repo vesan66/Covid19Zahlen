@@ -21,25 +21,33 @@ var appMode: AppMode {
         return AppMode.production      // Network and so on.
     }
 }
+#else
+let appMode = AppMode.production
+#endif
 
+#if MAINAPP
+#if DEBUG
 let fullJasonPrint: Bool = false
 let deleteOnEveryStartup: Bool = false
 #else
 let fullJasonPrint: Bool = false
-let appMode = AppMode.production
+#endif
 #endif
 
 
-final class AppDefaultConfiguration{
+final class AppDefaultConfiguration {
+    
+    public static let containerSharedGroup:    String = "group.com.Covid19Numbers"
     
     private static let dbNameForTesting:        String = "covidnumberstesting.sqlite"
     private static let dbNameForUnitTesting:    String = "covidnumbersunittesting.sqlite"
     private static let dbNameProduction:        String = "covidnumbers.sqlite"
     private static let dbNamePreview:           String = "covidnumberspreview.sqlite"
     
+    #if MAINAPP
     public static let timeForNextManualRetry:          TimeInterval =      60 * 60   // e.g. 1 hour
-    public static let timeForNextonActivateRefresh:    TimeInterval =  6 * 60 * 60   // e.g. 6 hours
-    public static let timeSpanUntilNextBackgroundFetch:TimeInterval =  6 * 60 * 60   // e.g. 6 hours
+    public static let timeForNextonActivateRefresh:    TimeInterval =  1 * 60 * 60   // e.g. 1 hours
+    public static let timeSpanUntilNextBackgroundFetch:TimeInterval =  1 * 60 * 60   // e.g. 1 hours
     
     public static let backgroundTaskIdentifierProcess: String = "com.Covid19Numbers.process"
     public static let backgroundTaskIdentifierRefresh: String = "com.Covid19Numbers.refresh"
@@ -50,6 +58,7 @@ final class AppDefaultConfiguration{
     public static let info_RTF_Text: NSAttributedString = LanguageHelpers.LoadNSAttributedString(AppDefaultConfiguration.InfoText_RTF_FileName)
     
     public static let barMaxValue: Double = 50
+    #endif
     
     #if DEBUG
     public static let isUnitTesting = (appMode == AppMode.unittest)

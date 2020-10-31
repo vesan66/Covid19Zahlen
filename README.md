@@ -7,6 +7,7 @@ Eine native IOS-App für IPhones ab iOS-Version 14.
 ![Alle](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6677_klein.png)
 ![Details](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6678_klein.png)
 ![Summen](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6679_klein.png)
+![Widget](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6685.png)
 
 ### Beschreibung
 
@@ -20,7 +21,7 @@ Auf der Startseite kann man sich Favoriten ablegen. Die Sortierung kann angepass
 Die Daten werden bis zu sieben Tage gesammelt und dann gelöscht. Damit kann man in gewisser Art und Weise eine Prognose anstellen. Allerdings ist zu bedenken, daß die Daten des RKI auch rückwirkend korrigiert werden können. Die hier vorliegende App verfolgt nicht die Änderungen der vergangenen Tage. Der Fokus liegt eindeutig auf dem aktuellen Tag.
 
 ### Techniken
-JSON, SQLITE, SWIFTUI
+JSON, SQLITE, SWIFTUI, WIDGETS
 
 ### Lizenz
 MIT License

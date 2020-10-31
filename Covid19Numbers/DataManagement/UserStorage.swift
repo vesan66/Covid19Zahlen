@@ -120,6 +120,7 @@ class UserStorage: NSObject {
             return TimeInterval(UserDefaults.standard.double(forKey: lastManualUpdateTryKey))
         }
         set {
+            Logger.data.notice("Setting lastManualUpdateTry to '\(Double(newValue), privacy: .public)', was '\(self.lastManualUpdateTry, privacy: .public)' before.")
             UserDefaults.standard.set(Double(newValue), forKey: lastManualUpdateTryKey)
         }
     }
@@ -129,6 +130,7 @@ class UserStorage: NSObject {
             return Int64(UserDefaults.standard.integer(forKey: latestTimeStampAtLocalDBKey))
         }
         set {
+            Logger.data.notice("Setting latestTimeStampAtLocalDB to '\(Double(newValue), privacy: .public)', was '\(self.latestTimeStampAtLocalDB, privacy: .public)' before.")
             UserDefaults.standard.set(Int64(newValue), forKey: latestTimeStampAtLocalDBKey)
         }
     }
@@ -165,6 +167,7 @@ class UserStorage: NSObject {
             return TimeInterval(UserDefaults.standard.double(forKey: lastOnActivateUpdateTryKey))
         }
         set {
+            Logger.data.notice("Setting lastOnActivateUpdateTry to '\(Double(newValue), privacy: .public)', was '\(self.lastOnActivateUpdateTry, privacy: .public)' before.")
             UserDefaults.standard.set(Double(newValue), forKey: lastOnActivateUpdateTryKey)
         }
     }

@@ -77,7 +77,7 @@ struct AllItemsView: View {
                 .padding(.bottom, 3)
                 .background(Color(.systemGray6)) //.background(Color(.green))
             }
-            .navigationBarTitle( NSLocalizedString("ID_Alle_Landkreise", comment: ""), displayMode: .inline)
+            .navigationBarTitle(NSLocalizedString("ID_Alle_Landkreise", comment: ""), displayMode: .inline)
             .onChange(of: self.mode.wrappedValue.isPresented) { value in
                 if value == false {
                     Logger.log.notice("Going to dismiss.")

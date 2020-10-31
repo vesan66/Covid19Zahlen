@@ -1,0 +1,17 @@
+/* 
+  Localizable.strings
+  Covid19Numbers
+
+  Created by Dirk Scheidt on 31.10.20.
+  
+*/
+
+
+"Overview Country" = "Overview Country";
+"Country Numbers" = "Country Numbers";
+"Germany" = "Germany";
+"7-d-i: " = "7-d-i: ";
+"1-d-i: " = "1-d-i: ";
+"cases " = "cases ";
+"Incidents per County" = "Incidents per County";
+"Incidents County" = "Incidents County";

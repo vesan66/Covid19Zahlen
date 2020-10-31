@@ -409,6 +409,8 @@ public final class AppController: NSObject, AppControllerFunctions {
                 if self.updater.inForegroundUpdate == true {
                     Logger.log.error("(1) There was a pending foreground activity: Resetting.")
                     self.updater.resetInForegroundUpdate()
+                } else {
+                    Logger.log.notice("No pending ForeGroundFlag found. Good.")
                 }
             }
             

@@ -8,33 +8,44 @@
 
 import Foundation
 import os.log
-
+import WidgetKit
 
 public class Updater: NSObject {
-    public private(set) var inForegroundUpdate: Bool = false
-    private var inBackgroundUpdate: Bool = false
+    public private(set) var inForegroundUpdate: Bool = false { didSet { Logger.log.notice("InForegroundUpdate was set to '\(self.inForegroundUpdate, privacy: .public)'.")   } }
+    private var inBackgroundUpdate: Bool = false { didSet { Logger.log.notice("InBackgroundUpdate was set to '\(self.inBackgroundUpdate, privacy: .public)'.")   } }
     
-    func ManualUpdate() {
-        let m_um: UpdateManager_Manual = UpdateManager_Manual()
-        self.Update(m_um)
-    }
+
     
     public func resetInForegroundUpdate() {
+        Logger.funcStart.notice("resetInForegroundUpdate")
         self.inForegroundUpdate = false
     }
     
     
     public func resetInBackgroundUpdate() {
+        Logger.funcStart.notice("resetInBackgroundUpdate")
         self.inBackgroundUpdate = false
     }
     
+    
     private func AnyUpdatePending() -> Bool {
+        Logger.funcStart.notice("AnyUpdatePending")
+        Logger.log.notice("InForegroundUpdate is '\(self.inForegroundUpdate, privacy: .public)'.")
+        Logger.log.notice("InBackgroundUpdate is '\(self.inBackgroundUpdate, privacy: .public)'.")
         return inForegroundUpdate == true || inBackgroundUpdate == true
     }
+    
     
     private func ClearAnyUpdatePendingFlag() {
         self.resetInForegroundUpdate()
         self.resetInBackgroundUpdate()
+    }
+    
+    
+    // MARK: - Update Modes
+    func ManualUpdate() {
+        let m_um: UpdateManager_Manual = UpdateManager_Manual()
+        self.Update(m_um)
     }
     
     func onReactivateAppUpdate() {
@@ -43,10 +54,8 @@ public class Updater: NSObject {
     }
     
     func onBackgroundUpdate() {
-        self.inBackgroundUpdate = true
         let m_um = UpdateManager_BackgroundTask()
         self.Update(m_um)
-        self.inBackgroundUpdate = false
     }
     
     func onInitialUpdate() {
@@ -54,7 +63,9 @@ public class Updater: NSObject {
         self.Update(m_um)
     }
     
-    func Update(_ m_um: UpdateManager) {
+    
+    // MARK: - Update Function
+    private func Update(_ m_um: UpdateManager) {
         if self.AnyUpdatePending() == true {
             Logger.log.notice("Skipping update, because ones pending.")
             return
@@ -63,8 +74,10 @@ public class Updater: NSObject {
         
         if m_um is UpdateManager_BackgroundTask {
             self.inBackgroundUpdate = true
+            self.inForegroundUpdate = false
         } else {
             self.inForegroundUpdate = true
+            self.inBackgroundUpdate = false
         }
         
         
@@ -122,6 +135,10 @@ public class Updater: NSObject {
                 if updateResult == .success {
                     obProps.appStatus = .NewDataForDisplay
                     obProps.newDataArrived = true
+                    
+                    // Say 'Hello' to Widgets.
+                    WidgetCenter.shared.reloadAllTimelines()
+                    
                 } else if updateResult == .failed {
                     obProps.appStatus = .ErrorGettingData
                 } else if updateResult == .serverHasNoNewData {

@@ -59,26 +59,41 @@ class DBManager: NSObject {
     }
     
     
+    private func getFileURL() -> URL?{
+        Logger.funcStart.notice("getFileURL")
+        var fileURL: URL?
+        
+        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: AppDefaultConfiguration.containerSharedGroup)
+        if let _ : URL = containerURL {
+            fileURL = containerURL!.appendingPathComponent(self.actualDBName)
+            Logger.log.notice("FilePath of DB: \(fileURL!.path, privacy: .public)")
+        }
+        return fileURL
+    }
+    
+    
     public func WipeDatabase() {
         self.CloseDataBaseAwait()
 
-        let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent(self.actualDBName)
+//        let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+//            .appendingPathComponent(self.actualDBName)
+        
+        if let fileURL = self.getFileURL() {
+            do {
+                let fileManager = FileManager.default
 
-        do {
-            let fileManager = FileManager.default
+                // Check if file exists
+                if fileManager.fileExists(atPath: fileURL.path) {
+                    // Delete file
+                    try fileManager.removeItem(atPath: fileURL.path)
+                } else {
+                    Logger.log.error("File does not exist")
+                }
 
-            // Check if file exists
-            if fileManager.fileExists(atPath: fileURL.path) {
-                // Delete file
-                try fileManager.removeItem(atPath: fileURL.path)
-            } else {
-                Logger.log.error("File does not exist")
             }
-
-        }
-        catch let error as NSError {
-            Logger.log.error("An error took place: \(error, privacy: .public)")
+            catch let error as NSError {
+                Logger.log.error("An error took place: \(error, privacy: .public)")
+            }
         }
         
     }
@@ -120,35 +135,33 @@ class DBManager: NSObject {
     private func CreateOpenOrOpenDBFile() -> Bool {
         var result: Bool = false
         if self.db == nil {
-        
-            let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-                .appendingPathComponent(self.actualDBName)
-            Logger.log.notice("FilePath of DB: \(fileURL.path, privacy: .public)")
+            if let fileURL = self.getFileURL() {
+                
+                // Open DB or Create and Open it.
+                if sqlite3_open(fileURL.path, &self.db) != SQLITE_OK {
+                    Logger.log.error("Error opening database")
+                } else {
+                    
+                    // Now the Database is Open
+                    self.dbIsOpen = true
+                    Logger.log.info("Database is open now.")
+                    
+                    // Create Tables (Always with IF NOT EXIST)
+                    var promises = 2
+                    if self.CreateTable(createTableString: createCasesTable) == true {
+                        promises -= 1
+                    } else { Logger.log.error("Can't create CasesTable.") }
+                    if self.CreateTable(createTableString: createFavoriteTable) == true {
+                        promises -= 1
+                    } else { Logger.log.error("Can't create FavoriteTable.") }
+                    
+                    result = promises == 0
+                    self.dbIsOpen = result
+                    
+                }
             
-            // Open DB or Create and Open it.
-            if sqlite3_open(fileURL.path, &self.db) != SQLITE_OK {
-                Logger.log.error("Error opening database")
-            } else {
-                
-                // Now the Database is Open
-                self.dbIsOpen = true
-                Logger.log.info("Database is open now.")
-                
-                // Create Tables (Always with IF NOT EXIST)
-                var promises = 2
-                if self.CreateTable(createTableString: createCasesTable) == true {
-                    promises -= 1
-                } else { Logger.log.error("Can't create CasesTable.") }
-                if self.CreateTable(createTableString: createFavoriteTable) == true {
-                    promises -= 1
-                } else { Logger.log.error("Can't create FavoriteTable.") }
-                
-                result = promises == 0
-                self.dbIsOpen = result
-                
-            }
-            
-        } else { return true}
+            } else { return false }
+        } else { return true }
         return result
     }
     
@@ -839,6 +852,17 @@ extension DBManager {
         return result
     }
       
+    
+    public func GetAllDaysOfCovidCasesForDisplayAwait(orderBy: SortType = SortType.alphabetic)->CovidCasesPerObjectIDSP {
+        Logger.funcStart.notice("GetAllDaysOfCovidCasesForDisplayAwait" )
+        var result = CovidCasesPerObjectIDSP()
+        serialQueue.sync { [weak self] in
+            guard let self = self else { return }
+            result = self.GetDaysOfCovidCasesForDisplay(executionType: .AllCountiesAllDays, orderBy: orderBy)
+        }
+        return result
+    }
+    
     
     public func GetAllDaysOfCovidCasesForDisplayAsync(orderBy: SortType, loadedData: @escaping(CovidCasesPerObjectIDSP)->()) {
         Logger.funcStart.notice("GetLastTwoDaysOfCovidCasesForDisplayAsync" )

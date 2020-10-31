@@ -86,13 +86,13 @@ class BackGroundTaskController: NSObject {
         request.requiresExternalPower = false
 
         // Apple said EarliestBeginDate should not be set to too far into the future.
-        Logger.log.notice("Next execution dateTime: \(execDateTime)")
+        Logger.log.notice("Next execution dateTime: \(execDateTime, privacy: .public)")
         request.earliestBeginDate = execDateTime
 
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            Logger.log.critical("Could not schedule NewWorkingTask: \(error.localizedDescription)")
+            Logger.log.critical("Could not schedule NewWorkingTask: \(error.localizedDescription, privacy: .public)")
         }
     }
     
@@ -114,7 +114,7 @@ class BackGroundTaskController: NSObject {
         Logger.funcStart.notice("WorkLoad")
         
         let result = WorkloadFunction()
-        Logger.log.notice("Result of WorkloadFunction was: \(result)")
+        Logger.log.notice("Result of WorkloadFunction was: \(result, privacy: .public)")
         
         return result
     }
@@ -144,7 +144,7 @@ class BackGroundTaskController: NSObject {
         Logger.funcStart.notice("WorkLoadRefresh")
         
         let result = WorkloadFunction()
-        Logger.log.notice("Result of WorkloadFunction was: \(result)")
+        Logger.log.notice("Result of WorkloadFunction was: \(result, privacy: .public)")
         
         return result
     }
@@ -163,7 +163,7 @@ class BackGroundTaskController: NSObject {
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            Logger.log.critical("Could not schedule NewWorkingTask: \(error.localizedDescription)")
+            Logger.log.critical("Could not schedule NewWorkingTask: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
