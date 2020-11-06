@@ -28,7 +28,7 @@ public class UpdateManager_Manual: UpdateManager {
         }
         
         if self.lastManualRefreshChecker.IsSatisfied() == false {
-            Logger.log.error("Due the manual refresh time of \((UserStorage.share.manualUpdateDelay/60)) minutes, update is not allowed.")
+            Logger.log.error("Due the manual refresh time of \((AppDefaultConfiguration.timeForNextManualRetry/60)) minutes, update is not allowed.")
             return IsUpdateAllowed.no_ManualtimeBlock
         }
         

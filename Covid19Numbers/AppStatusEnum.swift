@@ -22,6 +22,7 @@ public enum AppStatusEnum: Int {
     case ErrorGettingData = 11
     case NoInitalUpdateAllowed = 12
     case CheckingGettingNewData = 13
+    case LoadingDataFromDB = 14
     
     var description : String {
         get {
@@ -52,6 +53,8 @@ public enum AppStatusEnum: Int {
                 return AppStatusEnum_LS.NoInitalUpdateAllowed
             case .CheckingGettingNewData:
                 return AppStatusEnum_LS.CheckingGettingNewData
+            case .LoadingDataFromDB:
+                return AppStatusEnum_LS.LoadingDataFromDB
             }
         }
     }
@@ -91,4 +94,5 @@ public struct AppStatusEnum_LS {
     static let ErrorGettingData        = NSLocalizedString("ErrorGettingData", comment: "")
     static let NoInitalUpdateAllowed        = NSLocalizedString("NoInitalUpdateAllowed", comment: "")
     static let CheckingGettingNewData        = NSLocalizedString("CheckingGettingNewData", comment: "")
+    static let LoadingDataFromDB        = NSLocalizedString("LoadingDataFromDB", comment: "")
 }

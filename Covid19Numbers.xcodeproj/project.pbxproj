@@ -12,7 +12,6 @@
 		0D0639D12520A85900BDD706 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D0639D02520A85900BDD706 /* Assets.xcassets */; };
 		0D0639D42520A85900BDD706 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D0639D32520A85900BDD706 /* Preview Assets.xcassets */; };
 		0D0639D72520A85900BDD706 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0D0639D52520A85900BDD706 /* LaunchScreen.storyboard */; };
-		0D285191253248B300F3B5DE /* UpdateKindEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D285190253248B300F3B5DE /* UpdateKindEnums.swift */; };
 		0D2851992532777800F3B5DE /* UpdateManager_Initial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2851982532777800F3B5DE /* UpdateManager_Initial.swift */; };
 		0D28519D253277EF00F3B5DE /* DatabaseIsInitial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D28519C253277EF00F3B5DE /* DatabaseIsInitial.swift */; };
 		0D2851A125327C7200F3B5DE /* UpdateManager_BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2851A025327C7200F3B5DE /* UpdateManager_BackgroundTask.swift */; };
@@ -84,6 +83,7 @@
 		0DDF986A2530D3BE00AB7B3D /* LoggerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDF98692530D3BE00AB7B3D /* LoggerExtensions.swift */; };
 		0DDF986F2530D45B00AB7B3D /* NetworkMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDF986E2530D45B00AB7B3D /* NetworkMonitorService.swift */; };
 		0DDF98732530D59500AB7B3D /* BackGroundTaskController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDF98722530D59500AB7B3D /* BackGroundTaskController.swift */; };
+		0DE97C3D254748B800D9C8DB /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0DE97C3C254748B800D9C8DB /* LICENSE.txt */; };
 		0DF07B4025233D9200799650 /* DisplayHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF07B3F25233D9200799650 /* DisplayHelpers.swift */; };
 		0DF07B4425233F9600799650 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF07B4325233F9600799650 /* TestHelpers.swift */; };
 		0DF07B4C252346E300799650 /* DevelopHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF07B4B252346E300799650 /* DevelopHelpers.swift */; };
@@ -144,7 +144,6 @@
 		0D0639D62520A85900BDD706 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0D0639D82520A85900BDD706 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0D0639F72520E83700BDD706 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		0D285190253248B300F3B5DE /* UpdateKindEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateKindEnums.swift; sourceTree = "<group>"; };
 		0D2851982532777800F3B5DE /* UpdateManager_Initial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateManager_Initial.swift; sourceTree = "<group>"; };
 		0D28519C253277EF00F3B5DE /* DatabaseIsInitial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseIsInitial.swift; sourceTree = "<group>"; };
 		0D2851A025327C7200F3B5DE /* UpdateManager_BackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateManager_BackgroundTask.swift; sourceTree = "<group>"; };
@@ -176,7 +175,6 @@
 		0D8C7F772534E818007B7845 /* InfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		0D8C7F7B2534E9FC007B7845 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		0D8C7F812534F1DC007B7845 /* AllItemsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllItemsView.swift; sourceTree = "<group>"; };
-		0D91E13F254DCCEE004E0E1D /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		0DA118302522AACA009FA6F5 /* Covid19NumbersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Covid19NumbersTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DA118342522AACA009FA6F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DA1183D2522ABE0009FA6F5 /* TestGetCovidDataFromServerGermany.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestGetCovidDataFromServerGermany.swift; sourceTree = "<group>"; };
@@ -211,6 +209,7 @@
 		0DDF98692530D3BE00AB7B3D /* LoggerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggerExtensions.swift; sourceTree = "<group>"; };
 		0DDF986E2530D45B00AB7B3D /* NetworkMonitorService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkMonitorService.swift; sourceTree = "<group>"; };
 		0DDF98722530D59500AB7B3D /* BackGroundTaskController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackGroundTaskController.swift; sourceTree = "<group>"; };
+		0DE97C3C254748B800D9C8DB /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		0DF07B3F25233D9200799650 /* DisplayHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayHelpers.swift; sourceTree = "<group>"; };
 		0DF07B4325233F9600799650 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		0DF07B4B252346E300799650 /* DevelopHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevelopHelpers.swift; sourceTree = "<group>"; };
@@ -261,10 +260,10 @@
 		0D0639BE2520A85500BDD706 = {
 			isa = PBXGroup;
 			children = (
-				0D91E13F254DCCEE004E0E1D /* LICENSE.txt */,
 				0D765120254CAA6D0030AD7D /* Shared */,
 				0DDA882A2547603500412B04 /* screenshotsklein */,
 				0D0639F72520E83700BDD706 /* README.md */,
+				0DE97C3C254748B800D9C8DB /* LICENSE.txt */,
 				0D0639C92520A85500BDD706 /* Covid19Numbers */,
 				0DA118312522AACA009FA6F5 /* Covid19NumbersTests */,
 				0D798897254CF646008B996D /* Covid19NumbersWidgets */,
@@ -293,7 +292,6 @@
 				0DFF07EF2530F0960025966F /* ObservedProperties.swift */,
 				0D0639CA2520A85500BDD706 /* AppDelegate.swift */,
 				0D0639CC2520A85500BDD706 /* SceneDelegate.swift */,
-				0D285190253248B300F3B5DE /* UpdateKindEnums.swift */,
 				0DFF07F525310EF60025966F /* AppStatusEnum.swift */,
 				0DA9CB2D2532287600472350 /* UpdateManager */,
 				0DDF986D2530D40E00AB7B3D /* Services */,
@@ -630,6 +628,7 @@
 				0DB0379A253132890018475F /* infotext_EN.rtf in Resources */,
 				0DB0378B253127AB0018475F /* Settings.bundle in Resources */,
 				0DDA882B2547603500412B04 /* screenshotsklein in Resources */,
+				0DE97C3D254748B800D9C8DB /* LICENSE.txt in Resources */,
 				0D0639D42520A85900BDD706 /* Preview Assets.xcassets in Resources */,
 				0DB03799253132890018475F /* infotext_DE.rtf in Resources */,
 				0D0639D12520A85900BDD706 /* Assets.xcassets in Resources */,
@@ -727,7 +726,6 @@
 				0D8C7F782534E818007B7845 /* InfoView.swift in Sources */,
 				0DF07B582523918700799650 /* Searchbar.swift in Sources */,
 				0DDF98602530D09A00AB7B3D /* AppController.swift in Sources */,
-				0D285191253248B300F3B5DE /* UpdateKindEnums.swift in Sources */,
 				0D2851A125327C7200F3B5DE /* UpdateManager_BackgroundTask.swift in Sources */,
 				0D28519D253277EF00F3B5DE /* DatabaseIsInitial.swift in Sources */,
 				0D8C7F7C2534E9FC007B7845 /* TextView.swift in Sources */,
@@ -970,9 +968,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Covid19Numbers/Covid19Numbers.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 29;
 				DEVELOPMENT_ASSET_PATHS = "Covid19Numbers/Preview\\ Content";
-				DEVELOPMENT_TEAM = 3392265EU8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Covid19Numbers/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -996,9 +994,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Covid19Numbers/Covid19Numbers.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 29;
 				DEVELOPMENT_ASSET_PATHS = "Covid19Numbers/Preview\\ Content";
-				DEVELOPMENT_TEAM = 3392265EU8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Covid19Numbers/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1021,8 +1019,8 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = Covid19NumbersWidgets/Covid19NumbersWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
-				DEVELOPMENT_TEAM = 3392265EU8;
+				CURRENT_PROJECT_VERSION = 29;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Covid19NumbersWidgets/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1030,7 +1028,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.02;
-				PRODUCT_BUNDLE_IDENTIFIER = com.DirkScheidt.Covid19Numbers.Covid19NumbersWidgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers.Covid19NumbersWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -1045,8 +1043,8 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = Covid19NumbersWidgets/Covid19NumbersWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
-				DEVELOPMENT_TEAM = 3392265EU8;
+				CURRENT_PROJECT_VERSION = 29;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Covid19NumbersWidgets/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1054,7 +1052,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.02;
-				PRODUCT_BUNDLE_IDENTIFIER = com.DirkScheidt.Covid19Numbers.Covid19NumbersWidgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers.Covid19NumbersWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -1067,8 +1065,8 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = CountyWidgetIntentExtension/CountyWidgetIntentExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
-				DEVELOPMENT_TEAM = 3392265EU8;
+				CURRENT_PROJECT_VERSION = 29;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = CountyWidgetIntentExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1076,7 +1074,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.02;
-				PRODUCT_BUNDLE_IDENTIFIER = com.DirkScheidt.Covid19Numbers.CountyWidgetIntentExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers.CountyWidgetIntentExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -1089,8 +1087,8 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = CountyWidgetIntentExtension/CountyWidgetIntentExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
-				DEVELOPMENT_TEAM = 3392265EU8;
+				CURRENT_PROJECT_VERSION = 29;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = CountyWidgetIntentExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1098,7 +1096,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.02;
-				PRODUCT_BUNDLE_IDENTIFIER = com.DirkScheidt.Covid19Numbers.CountyWidgetIntentExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers.CountyWidgetIntentExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -1111,7 +1109,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3392265EU8;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Covid19Numbers/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1131,7 +1129,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3392265EU8;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Covid19Numbers/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

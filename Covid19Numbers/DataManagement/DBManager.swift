@@ -115,6 +115,7 @@ class DBManager: NSObject {
     
     
     public func DataBaseIsEmptyAwait() -> Bool?{
+        Logger.funcStart.notice("DataBaseIsEmptyAwait")
         var result: Bool? = nil
         
         if self.dbIsOpen == false { Logger.log.error("Database not open."); return result }
@@ -133,6 +134,7 @@ class DBManager: NSObject {
     
     
     private func CreateOpenOrOpenDBFile() -> Bool {
+        Logger.funcStart.notice("CreateOpenOrOpenDBFile")
         var result: Bool = false
         if self.db == nil {
             if let fileURL = self.getFileURL() {
@@ -209,14 +211,17 @@ class DBManager: NSObject {
     
     
     public func InsertItemsAsyncWithCallback(items: [CovidCase], callbackObject: CallBackObject){
-        serialQueue.async { [weak self] in
-            guard let self = self else { return }
+        Logger.funcStart.notice("InsertItemsAsyncWithCallback")
+//        serialQueue.async { [weak self] in
+//            guard let self = self else { Logger.log.error("My 'self' is gone."); callbackObject.DoCallBack(updateResult: .failed);  return }
+        serialQueue.async {
             self.InsertItems(items: items, callbackObject: callbackObject)
         }
     }
     
     
     private func InsertItems(items: [CovidCase], callbackObject: CallBackObject? = nil){
+        Logger.funcStart.notice("InsertItems")
         var countOfGoodOnes: Int = 0
         
         // Insert the items
@@ -245,27 +250,26 @@ class DBManager: NSObject {
             let _ = self.DeleteOlderCases()
         }
     
-        if let callbackObject = callbackObject {
-            let query = AppController.share.updateSerialQueue
-            query.async {
-                if insertResult {
-                    callbackObject.DoCallBack(updateResult: .success)
-                } else {
-                    callbackObject.DoCallBack(updateResult: .failed)
-                }
-            }
-        }
-        
         if insertResult {
             self.UpdateUserStorage(timeStamp1000: timeStamp1000, hasData: (countOfGoodOnes > 0))
         }
         
+        // Do the callback.
+        if let callbackObject = callbackObject {
+            if let updater = callbackObject.updater {
+                if let q = updater.GetQueue() {
+                    q.async {
+                        callbackObject.DoCallBack(updateResult: ((insertResult == true) ? .success : .failed))
+                    }
+                }
+            }
+        }
     }
     
     
     private func UpdateUserStorage(timeStamp1000: Int64, hasData: Bool) {
         if let us = self.userStorage {
-            DispatchQueue.main.async {
+            DispatchQueue.main.sync {
                 
                 // Store the latest TimeStamp in UserData.
                 us.latestTimeStampAtLocalDB = timeStamp1000
@@ -548,6 +552,7 @@ class DBManager: NSObject {
     
     
     private func CountCases()-> Int64? {
+        Logger.funcStart.notice("CountCases")
         var count: Int64? = nil
         
         let queryString = "SELECT COUNT(*) FROM cases"
@@ -562,7 +567,7 @@ class DBManager: NSObject {
         
         while(sqlite3_step(stmt) == SQLITE_ROW){
             count = sqlite3_column_int64(stmt, 0)
-            Logger.log.error("Got \(count!, privacy: .public) rows.")
+            Logger.data.error("Got \(count!, privacy: .public) rows.")
             break
         }
         sqlite3_finalize(stmt)
@@ -625,7 +630,7 @@ class DBManager: NSObject {
         
         while(sqlite3_step(stmt) == SQLITE_ROW){
             result = sqlite3_column_int64(stmt, 0)
-            Logger.log.notice("Received NewestDateTime1000 = '\(String(result ?? 0),privacy: .public)" )
+            Logger.log.notice("Received NewestDateTime1000 = '\(String(result ?? 0),privacy: .public)'" )
             break
         }
         sqlite3_finalize(stmt)

@@ -27,7 +27,7 @@ public class UpdateManager_BecomeActive: UpdateManager {
         }
         
         if self.lastBecameActiveRefresh.IsSatisfied() == false {
-            Logger.log.error("Due the onActivate refresh time of \((UserStorage.share.onActivateUpdateDelay/60)) minutes, update is not allowed.")
+            Logger.log.error("Due the onActivate refresh time of \((AppDefaultConfiguration.timeForNextonActivateRefresh/60)) minutes, update is not allowed.")
             return IsUpdateAllowed.no_activationTimeBlock
         }
         

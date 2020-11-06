@@ -21,149 +21,209 @@ struct Estimation {
 }
 
 class BackGroundTaskController: NSObject {
+    // TODO: Refactoring: Share codebase. To much boilerplate.
+    
     static public let shared = BackGroundTaskController()
     private override init()  { super.init() }
-    
-    private var EstimationFunction: ()-> Estimation = {
-        () -> Estimation in
-        Logger.log.error("EstimationFunction not set.")
-        return Estimation(false)
-    }
-    
-    private var WorkloadFunction: ()-> Bool = {
-        () -> Bool in
-        return true
-    }
 
-    private let identifierProcess: String = AppDefaultConfiguration.backgroundTaskIdentifierProcess
-    private let identifierRefresh: String = AppDefaultConfiguration.backgroundTaskIdentifierRefresh
     
-    //MARK: e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.DirkScheidt.BackgroundTaskExample.refresh"]
-    
-    public func EnqueueNewBackgroundTask() {
-        Logger.funcStart.notice("EnqueueNewBackgroundTask")
-        self.CancelAllTaskRequests()
-        self.EnqueueNewWorkingTask()
-    }
-    
-    public func RegisterBackgroundTask() {
-        Logger.funcStart.notice("RegisterBackgroundTask")
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: identifierProcess, using: nil) { task in
-              self.WorkingTask(task: task as! BGProcessingTask)
-        }
-    }
-
     public func CancelAllTaskRequests() {
         BGTaskScheduler.shared.cancelAllTaskRequests()
     }
     
-    public func SetEstimationFunction(function: @escaping ()-> Estimation) {
-        self.EstimationFunction = function
-    }
     
-    public func SetWorkloadFunction(function: @escaping ()-> Bool) {
-        self.WorkloadFunction = function
-    }
-    
-    private func EnqueueNewWorkingTask() {
-        Logger.funcStart.notice("EnqueueNewWorkingTask")
+//    // MARK: --  BGProcessingTask --
+//    private let identifierProcessingTask: String    = AppDefaultConfiguration.backgroundTaskIdentifierProcess
+//
+//
+//    private var EstimationProcessingTaskFunction: ()-> Estimation = {
+//        () -> Estimation in
+//        Logger.log.error("EstimationProcessingTaskFunction not set.")
+//        return Estimation(false)
+//    }
+//
+//
+//    private var WorkloadProcessingTaskFunction: ()-> Bool = {
+//        () -> Bool in
+//        return true
+//    }
+//
+//
+//    public func SetEstimationProcessingTaskFunction(function: @escaping ()-> Estimation) {
+//        self.EstimationProcessingTaskFunction = function
+//    }
+//
+//
+//    public func SetWorkloadProcessingTaskFunction(function: @escaping ()-> Bool) {
+//        self.WorkloadProcessingTaskFunction = function
+//    }
+//
+//
+//    public func RegisterBackgroundProcessingTask() {
+//        Logger.funcStart.notice("RegisterBackgroundProcessingTask")
+//        BGTaskScheduler.shared.register(forTaskWithIdentifier: identifierProcessingTask, using: nil) { task in
+//              self.WorkingProcessingTask(task: task as! BGProcessingTask)
+//        }
+//    }
+//
+//
+//    public func EnqueueNewBackgroundProcessingTask() {
+//        // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.Covid19Numbers.process"]
+//        Logger.funcStart.notice("EnqueueNewBackgroundProcessingTask")
+//        self.CancelAllTaskRequests()
+//        self.EnqueueNewWorkingProcessingTask()
+//    }
+//
+//
+//    private func EnqueueNewWorkingProcessingTask() {
+//        Logger.funcStart.notice("EnqueueNewWorkingProcessingTask")
+//
+//        let estimationResult = self.EstimationProcessingTaskFunction()
+//
+//        if estimationResult.execute == false {
+//            Logger.log.notice("No new ProcessingTask to set.")
+//            return
+//        }
+//
+//        guard let execDateTime = estimationResult.atDateTime else {
+//            Logger.log.error("estimationResult.atDateTime was not set.")
+//            return
+//        }
+//
+//        let request = BGProcessingTaskRequest(identifier: identifierProcessingTask)
+//
+//        request.requiresNetworkConnectivity = true
+//        request.requiresExternalPower = false
+//
+//        // Apple said EarliestBeginDate should not be set to too far into the future.
+//        Logger.log.notice("Next execution at: \(execDateTime, privacy: .public)")
+//        request.earliestBeginDate = execDateTime
+//
+//        do {
+//            try BGTaskScheduler.shared.submit(request)
+//        } catch {
+//            Logger.log.critical("Could not schedule new ProcessingTask: \(error.localizedDescription, privacy: .public)")
+//        }
+//    }
+//
+//
+//    private func WorkingProcessingTask(task: BGProcessingTask) {
+//        Logger.funcStart.notice("WorkingProcessingTask")
+//        self.EnqueueNewWorkingProcessingTask()
+//
+//        task.expirationHandler = {
+//            self.CancelAllTaskRequests()
+//        }
+//        DispatchQueue.main.async() {
+//            let result = self.WorkLoadProcessingTask()
+//            task.setTaskCompleted(success: result)
+//        }
+//    }
+//
+//
+//    private func WorkLoadProcessingTask() -> Bool {
+//        Logger.funcStart.notice("WorkLoadProcessingTask")
+//
+//        let result = WorkloadProcessingTaskFunction()
+//        Logger.log.notice("Result of WorkloadProcessingTaskFunction was: \(result, privacy: .public)")
+//
+//        return result
+//    }
 
-        let estimationResult = self.EstimationFunction()
-        
+
+    
+    // MARK: --  BGAppRefreshTask --
+    private let identifierRefreshTask: String       = AppDefaultConfiguration.backgroundTaskIdentifierRefresh
+    
+    
+    private var EstimationRefreshTaskFunction: ()-> Estimation = {
+        () -> Estimation in
+        Logger.log.error("EstimationRefreshTaskFunction not set.")
+        return Estimation(false)
+    }
+    
+    
+    private var WorkloadRefreshTaskFunction: ()-> Bool = {
+        () -> Bool in
+        return true
+    }
+    
+    
+    public func SetEstimationRefreshTaskFunction(function: @escaping ()-> Estimation) {
+        self.EstimationRefreshTaskFunction = function
+    }
+    
+    
+    public func SetWorkloadRefreshTaskFunction(function: @escaping ()-> Bool) {
+        self.WorkloadRefreshTaskFunction = function
+    }
+    
+    
+    public func RegisterBackgroundRefreshTask() {
+        Logger.funcStart.notice("RegisterBackgroundRefreshTask")
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: identifierRefreshTask, using: nil) { task in
+              self.WorkingRefreshTask(task: task as! BGAppRefreshTask)
+            }
+    }
+    
+    
+    public func EnqueueNewBackgroundRefreshTask() {
+        // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.Covid19Numbers.refresh"]
+        Logger.funcStart.notice("EnqueueNewBackgroundRefreshTask")
+        self.CancelAllTaskRequests()
+        self.EnqueueNewWorkingRefreshTask()
+    }
+
+
+    private func EnqueueNewWorkingRefreshTask() {
+        Logger.funcStart.notice("EnqueueNewWorkingRefreshTask")
+
+        let estimationResult = self.EstimationRefreshTaskFunction()
+
         if estimationResult.execute == false {
-            Logger.log.notice("No new WorkingTask to set.")
+            Logger.log.notice("No new RefreshTask to set.")
             return
         }
-        
+
         guard let execDateTime = estimationResult.atDateTime else {
             Logger.log.error("estimationResult.atDateTime was not set.")
             return
         }
-        
-        let request = BGProcessingTaskRequest(identifier: identifierProcess)
-
-        request.requiresNetworkConnectivity = true
-        request.requiresExternalPower = false
 
         // Apple said EarliestBeginDate should not be set to too far into the future.
-        Logger.log.notice("Next execution dateTime: \(execDateTime, privacy: .public)")
+        Logger.log.notice("Next execution at: \(execDateTime, privacy: .public)")
+
+        let request = BGAppRefreshTaskRequest(identifier: identifierRefreshTask)
         request.earliestBeginDate = execDateTime
 
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            Logger.log.critical("Could not schedule NewWorkingTask: \(error.localizedDescription, privacy: .public)")
+            Logger.log.critical("Could not schedule new RefreshTask: \(error.localizedDescription, privacy: .public)")
         }
     }
     
-    private func WorkingTask(task: BGProcessingTask) {
-        Logger.funcStart.notice("WorkingTask")
-        self.EnqueueNewWorkingTask()
+    
+    private func WorkingRefreshTask(task: BGAppRefreshTask) {
+        Logger.funcStart.notice("WorkingRefreshTask")
+        self.EnqueueNewWorkingRefreshTask()
 
         task.expirationHandler = {
             self.CancelAllTaskRequests()
         }
-
-        let result = WorkLoad()
-
-        task.setTaskCompleted(success: result)
-
-    }
-
-    private func WorkLoad() -> Bool {
-        Logger.funcStart.notice("WorkLoad")
-        
-        let result = WorkloadFunction()
-        Logger.log.notice("Result of WorkloadFunction was: \(result, privacy: .public)")
-        
-        return result
-    }
-
-    public func RegisterBackgroundRefreshTask() {
-        Logger.funcStart.notice("RegisterBackgroundRefreshTask")
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: identifierRefresh, using: nil) { task in
-              self.WorkingTaskRefresh(task: task as! BGAppRefreshTask)
-            }
-    }
-
-    private func WorkingTaskRefresh(task: BGAppRefreshTask) {
-        Logger.funcStart.notice("WorkingTask Refresh")
-        self.EnqueueNewWorkingTask()
-
-        task.expirationHandler = {
-            self.CancelAllTaskRequests()
+        DispatchQueue.main.async() {
+            let result = self.WorkLoadRefreshTask()
+            task.setTaskCompleted(success: result)
         }
-
-        let result = WorkLoadRefresh()
-
-        task.setTaskCompleted(success: result)
-
-    }
-
-    private func WorkLoadRefresh() -> Bool {
-        Logger.funcStart.notice("WorkLoadRefresh")
-        
-        let result = WorkloadFunction()
-        Logger.log.notice("Result of WorkloadFunction was: \(result, privacy: .public)")
-        
-        return result
     }
     
-    private func EnqueueNewWorkingTaskRefresh() {
-        Logger.funcStart.notice("EnqueueNewWorkingTaskRefresh")
+    
+    private func WorkLoadRefreshTask() -> Bool {
+        Logger.funcStart.notice("WorkLoadRefreshTask")
 
-        // TODO: Condition Test!
-        // TODO: Next Execution Time!
+        let result = WorkloadRefreshTaskFunction()
+        Logger.data.notice("Result of WorkloadRefreshTaskFunction was: \(result, privacy: .public)")
 
-        let request = BGAppRefreshTaskRequest(identifier: identifierRefresh)
-
-        // Mark: Apple said EarliestBeginDate should not be set to too far into the future.
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 1 * 60) // -> 1 Minute
-
-        do {
-            try BGTaskScheduler.shared.submit(request)
-        } catch {
-            Logger.log.critical("Could not schedule NewWorkingTask: \(error.localizedDescription, privacy: .public)")
-        }
+        return result
     }
 }

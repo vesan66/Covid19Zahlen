@@ -8,6 +8,7 @@
 import WidgetKit
 import SwiftUI
 import Intents
+import os.log
 
 struct Provider: IntentTimelineProvider {
     
@@ -48,7 +49,20 @@ struct Provider: IntentTimelineProvider {
             entries.append(CountyEntry(date: Date(),configuration: configuration, cases: emptyCounty))
         }
         
-        let timeline = Timeline(entries: [CountyEntry(date: Date(),configuration: configuration, cases: cases)], policy: .never)
+//        // Passive Version: Waits for ever.
+//        let timeline = Timeline(entries: [CountyEntry(date: Date(),configuration: configuration, cases: cases)], policy: .never)
+        
+        // Request a timeline refresh after 60 minutes.
+        let refreshDate = Calendar.current.date(byAdding: .minute, value: 60, to: Date())
+        var timeline: Timeline<Entry>
+        if let _ = refreshDate {
+            Logger.data.notice("Setting refresh timeline to: \(DTAI(dateTimeAsDate: refreshDate!).DateTimeForDisplay(),privacy: .public)")
+            timeline = Timeline(entries: [CountyEntry(date: Date(), configuration: configuration, cases: cases)], policy: .after(refreshDate!))
+        } else {
+            Logger.data.notice("Can't set a refreshtime.")
+            timeline = Timeline(entries: [CountyEntry(date: Date(), configuration: configuration, cases: cases)], policy: .never)
+        }
+        
         completion(timeline)
     }
     

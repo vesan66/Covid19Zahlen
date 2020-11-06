@@ -24,7 +24,7 @@ struct FavoritesView: View {
     
     @State private var showInfo: Bool = false
     @State private var favoritesAreChanged: Bool = false
-    @State private var refreshingID = UUID()
+    //@State private var refreshingID = UUID()
     
     private var mapHelper = MapHelper()
     
@@ -51,7 +51,7 @@ struct FavoritesView: View {
         NavigationView() {
             VStack(spacing: 0) {
                 List() {
-                    if obProps.loadingDataFromDB == true {
+                    if obProps.appStatus == .LoadingDataFromDB {
                         HStack(alignment: .center) {
                             Spacer()
                             Text(NSLocalizedString("ID_Loading", comment: ""))
@@ -91,7 +91,9 @@ struct FavoritesView: View {
                                     .background(Color(.systemGray6))
                                     .cornerRadius(3)
                             }
-                            .onDelete(perform: deleteItems).id(refreshingID)
+                            .onDelete(perform: deleteItems)
+                            //.id(refreshingID)
+                            .id(obProps.displayNewData)
                             
                             
                         }
@@ -140,7 +142,7 @@ extension FavoritesView {
                 VStack(spacing:0) {
                 HStack(alignment: .center, spacing:0) {Image(systemName: "arrow.2.circlepath").imageScale(.medium)}
                     .padding(.bottom, 4)
-                HStack(alignment: .center, spacing:0) {Text(NSLocalizedString("ID_Stand", comment: "") + DTAI(dateTimeAsInteger: self.obProps.latestTimeStampOfDB).DateTimeForDisplay()).font(.caption)}
+                HStack(alignment: .center, spacing:0) {Text(NSLocalizedString("ID_Stand", comment: "") + DTAI(dateTimeAsInteger: self.obProps.latestTimeStampAtDisplay).DateTimeForDisplay()).font(.caption)}
                 }
                 .padding([.leading,.trailing], 8)
                 .foregroundColor(Color.blue)
@@ -231,13 +233,15 @@ extension FavoritesView {
             if let idLandkreis = self.mapHelper.indexMap[idx] {
                 self.mapHelper.indexMap.removeValue(forKey: idx)
                 self.appFunctions.DelteAndRemoveAFavorite(idLandkreis: idLandkreis)
-                self.refreshingID = UUID()   // This is the trick, to invalidate the foreach group!
+                //self.refreshingID = UUID()   // This is the trick, to invalidate the foreach group!
+                self.obProps.raiseDisplayData()
                 break
             }
         }
     }
 }
 
+#if DEBUG
 //struct FavoritesView_Previews: PreviewProvider {
 //    static var previews: some View {
 //        Group{
@@ -250,6 +254,6 @@ extension FavoritesView {
 //        }
 //    }
 //}
-
+#endif
 
 //.background(Color(.green))

@@ -16,7 +16,7 @@ class LastManualRefresh: NSObject, Sensor, SensorAfterMath {
     func IsSatisfied() -> Bool {
         let lastExec = getDateTimeIntervall()
         let now = Date().timeIntervalSince1970
-        let nextPossibleExecution = lastExec + UserStorage.share.manualUpdateDelay
+        let nextPossibleExecution = lastExec + AppDefaultConfiguration.timeForNextManualRetry //UserStorage.share.manualUpdateDelay
         if nextPossibleExecution < now {
             return true
         }
@@ -42,7 +42,7 @@ class LastManualRefresh: NSObject, Sensor, SensorAfterMath {
         }
 
         if needSet == true {
-            let nextPossibleExecution = Date().timeIntervalSince1970 + UserStorage.share.manualUpdateDelay
+            let nextPossibleExecution = Date().timeIntervalSince1970 + AppDefaultConfiguration.timeForNextManualRetry //UserStorage.share.manualUpdateDelay
             self.setDateTimeIntervall(nextPossibleExecution)
         }
         

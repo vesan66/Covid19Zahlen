@@ -14,7 +14,7 @@ class LastBecameActiveRefresh: NSObject, Sensor, SensorAfterMath {
     func IsSatisfied() -> Bool {
         let lastExec = getDateTimeIntervall()
         let now = Date().timeIntervalSince1970
-        let nextPossibleExecution = lastExec + UserStorage.share.onActivateUpdateDelay
+        let nextPossibleExecution = lastExec + AppDefaultConfiguration.timeForNextonActivateRefresh // UserStorage.share.onActivateUpdateDelay
         if nextPossibleExecution < now {
             return true
         }
@@ -40,7 +40,7 @@ class LastBecameActiveRefresh: NSObject, Sensor, SensorAfterMath {
         }
 
         if needSet == true {
-            let nextPossibleExecution = Date().timeIntervalSince1970 + UserStorage.share.onActivateUpdateDelay
+            let nextPossibleExecution = Date().timeIntervalSince1970 + AppDefaultConfiguration.timeForNextonActivateRefresh // UserStorage.share.onActivateUpdateDelay
             self.setDateTimeIntervall(nextPossibleExecution)
         }
         

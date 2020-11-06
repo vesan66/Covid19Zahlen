@@ -19,9 +19,7 @@ class UserStorage: NSObject {
     
     private let lastManualUpdateTryKey = "lastManualUpdateTry" + appMode.asSuffix()
     private let latestTimeStampAtLocalDBKey = "latestTimeStampAtLocalDB" + appMode.asSuffix()
-    private let manualUpdateDelayKey = "manualUpdateDelay" + appMode.asSuffix()
     private let isNotFirstStartKey = "isNotFirstStart" + appMode.asSuffix()
-    private let onActivateUpdateDelayKey = "onActivateUpdateDelay" + appMode.asSuffix()
     private let lastOnActivateUpdateTryKey = "lastOnActivateUpdateTry" + appMode.asSuffix()
     private let userWantsResetKey = "userWantsReset" + appMode.asSuffix()
     private let applicationVersionKey = "UD_VERSION" + appMode.asSuffix()
@@ -35,15 +33,18 @@ class UserStorage: NSObject {
         Logger.log.error("onWantsResetFunc not set.")
     }
     
+    
     private var onRemoveLastDowloadFunc: () -> () = {
         () -> () in
         Logger.log.error("onRemoveLastDowloadFunc not set.")
     }
     
+    
     override private init() {
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(self.UpdateUserData), name: UserDefaults.didChangeNotification, object: nil)
     }
+    
     
     @objc func UpdateUserData(_ notification: Notification) {
         let wantsReset = self.userWantsReset
@@ -53,41 +54,55 @@ class UserStorage: NSObject {
                 self.onWantsResetFunc()
             }
         }
+    
         let removeLastDownalod = self.removeLastDownload
         if removeLastDownalod == true {
             Logger.log.notice("User initiated removeLastDownload.")
             DispatchQueue.main.async() {
-                self.removeLastDownload = false
+                //self.removeLastDownload = false
                 self.onRemoveLastDowloadFunc()
             }
         }
     }
     
+    
     public func onWantsReset(function: @escaping ()-> ()) {
         self.onWantsResetFunc = function
     }
+    
     
     public func onRemoveLastDowload(function: @escaping ()-> ()) {
         self.onRemoveLastDowloadFunc = function
     }
     
+    
     public var userWantsReset: Bool {
         get {
-            return UserDefaults.standard.bool(forKey: userWantsResetKey)
+            let currentValue = UserDefaults.standard.bool(forKey: userWantsResetKey)
+            if currentValue == true {
+                UserDefaults.standard.set(Bool(false), forKey: userWantsResetKey)
+            }
+            return currentValue
         }
         set {
             UserDefaults.standard.set(Bool(newValue), forKey: userWantsResetKey)
         }
     }
     
+    
     public var removeLastDownload: Bool {
         get {
-            return UserDefaults.standard.bool(forKey: removeLastDownloadKey)
+            let currentValue = UserDefaults.standard.bool(forKey: removeLastDownloadKey)
+            if currentValue == true {
+                UserDefaults.standard.set(Bool(false), forKey: removeLastDownloadKey)
+            }
+            return currentValue
         }
         set {
             UserDefaults.standard.set(Bool(newValue), forKey: removeLastDownloadKey)
         }
     }
+    
     
     func GetSetVersionAndBuild(){
         let versionNumber: String = Bundle.main.object(forInfoDictionaryKey: UserStorage.BundleKeys.BundleShortVersionString) as! String
@@ -96,6 +111,7 @@ class UserStorage: NSObject {
         self.applicationVersion = versionAndBuildNumber
         UserDefaults.standard.synchronize()
     }
+    
     
     public var databaseIsEmpty: Bool {
         get {
@@ -106,6 +122,7 @@ class UserStorage: NSObject {
         }
     }
     
+    
     public var applicationVersion: String {
         get {
             return UserDefaults.standard.string(forKey: applicationVersionKey) ?? "Not set yet."
@@ -114,6 +131,7 @@ class UserStorage: NSObject {
             UserDefaults.standard.set(String(newValue), forKey: applicationVersionKey)
         }
     }
+    
     
     public var lastManualUpdateTry: TimeInterval {
         get {
@@ -125,6 +143,7 @@ class UserStorage: NSObject {
         }
     }
 
+    
     public var latestTimeStampAtLocalDB: Int64 {
         get {
             return Int64(UserDefaults.standard.integer(forKey: latestTimeStampAtLocalDBKey))
@@ -135,6 +154,7 @@ class UserStorage: NSObject {
         }
     }
     
+    
     public var sortOrder: SortType {
         get {
             return SortType(rawValue: UserDefaults.standard.integer(forKey: sortOrderKey)) ?? SortType.alphabetic
@@ -144,24 +164,7 @@ class UserStorage: NSObject {
         }
     }
     
-    public var manualUpdateDelay: TimeInterval {
-        get {
-            return TimeInterval(UserDefaults.standard.double(forKey: manualUpdateDelayKey))
-        }
-        set {
-            UserDefaults.standard.set(Double(newValue), forKey: manualUpdateDelayKey)
-        }
-    }
-    
-    public var onActivateUpdateDelay: TimeInterval {
-        get {
-            return TimeInterval(UserDefaults.standard.double(forKey: onActivateUpdateDelayKey))
-        }
-        set {
-            UserDefaults.standard.set(Double(newValue), forKey: onActivateUpdateDelayKey)
-        }
-    }
-    
+
     public var lastOnActivateUpdateTry: TimeInterval {
         get {
             return TimeInterval(UserDefaults.standard.double(forKey: lastOnActivateUpdateTryKey))
@@ -172,6 +175,7 @@ class UserStorage: NSObject {
         }
     }
     
+    
     public var isFirstStart: Bool {
         get {
             return !Bool(UserDefaults.standard.bool(forKey: isNotFirstStartKey))
@@ -181,21 +185,27 @@ class UserStorage: NSObject {
         }
     }
     
+    
     public func ClearData() {
+        
+        // Remove all
         let appDomain: String? = Bundle.main.bundleIdentifier
         UserDefaults.standard.removePersistentDomain(forName: appDomain!)
+        
+        // Set the defaults
         self.userWantsReset = false
         self.lastManualUpdateTry = 0
         self.latestTimeStampAtLocalDB = 0
-        self.manualUpdateDelay = AppDefaultConfiguration.timeForNextManualRetry
         self.lastOnActivateUpdateTry = 0
-        self.onActivateUpdateDelay = AppDefaultConfiguration.timeForNextonActivateRefresh
         self.isFirstStart = false // Cause it's running now!
         self.databaseIsEmpty = true
         self.sortOrder = .alphabetic
         self.removeLastDownload = false
+        
+        // Store
         UserDefaults.standard.synchronize()
     }
+    
     
     public func CheckForFirstStartAndInitialize() {
         if self.isFirstStart == true {
@@ -203,6 +213,7 @@ class UserStorage: NSObject {
             self.ClearData()
         }
     }
+    
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: UserDefaults.didChangeNotification, object: nil)

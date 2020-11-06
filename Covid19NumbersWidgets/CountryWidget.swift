@@ -7,6 +7,7 @@
 
 import WidgetKit
 import SwiftUI
+import os.log
 
 struct CountryProvider: TimelineProvider {
     
@@ -41,7 +42,20 @@ struct CountryProvider: TimelineProvider {
             entries.append(CountryEntry(date: Date(), cases: emptyCountry))
         }
         
-        let timeline = Timeline(entries: [CountryEntry(date: Date(), cases: cases)], policy: .never)
+//        // Passive Version: Waits for ever.
+//        let timeline = Timeline(entries: [CountryEntry(date: Date(), cases: cases)], policy: .never)
+        
+        // Request a timeline refresh after 60 minutes.
+        let refreshDate = Calendar.current.date(byAdding: .minute, value: 60, to: Date())
+        var timeline: Timeline<CountryEntry>
+        if let _ = refreshDate {
+            Logger.data.notice("Setting refresh timeline to: \(DTAI(dateTimeAsDate: refreshDate!).DateTimeForDisplay(),privacy: .public)")
+            timeline = Timeline(entries: [CountryEntry(date: Date(), cases: cases)], policy: .after(refreshDate!))
+        } else {
+            Logger.data.notice("Can't set a refreshtime.")
+            timeline = Timeline(entries: [CountryEntry(date: Date(), cases: cases)], policy: .never)
+        }
+        
         completion(timeline)
     }
 }

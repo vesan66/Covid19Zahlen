@@ -20,6 +20,7 @@
 "ErrorGettingData" = "Error getting data.";
 "NoInitalUpdateAllowed" = "No inital update allowed.";
 "CheckingGettingNewData" = "Checking, getting new data.";
+"LoadingDataFromDB" = "Loading data from DB.";
 "ID_Landkreise" = "Counties";
 "ID_Landkreis" = "County";
 "ID_Alle" = "All";

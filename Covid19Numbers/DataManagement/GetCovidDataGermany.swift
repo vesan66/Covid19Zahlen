@@ -8,6 +8,7 @@
 
 import Foundation
 import os.log
+import UIKit
 
 #if DEBUG
 //fileprivate var jsonDummyDataBase:              String = jsonDummyDataBase_20201010
@@ -24,6 +25,8 @@ fileprivate var jsonDummyDataRecovered:         String = ""
 fileprivate var jsonDummyDataNewToday:          String = ""
 fileprivate var jsonDummyDataNewestTimeStamp:   String = ""
 #endif
+
+typealias JSONObject = [String : Any]
 
 // MARK:-
 protocol GetCovidDataFromServer: NSObject {
@@ -120,6 +123,20 @@ class GetCovidDataFromServerBase: NSObject, GetCovidDataFromServer {
         }.resume()
     }
     
+//    // TODO: TESTETN
+//    fileprivate func DoRequestAsync_22(_ request: URLRequest, ReceivedJsonObject: @escaping ([String : Any]?)->()) {
+//        Logger.funcStart.notice("DoRequestAndWait")
+//
+//        let theRequest = Request()
+//        theRequest.StartTaskAsync(request) { jsonObject in
+//            ReceivedJsonObject(jsonObject)
+//        }
+//        // oder ??
+//        //theRequest.StartTaskAsync(request, receivedJsonObject: ReceivedJsonObject)
+//
+//    }
+    
+    
     fileprivate func GetTheData(ReceivedJsonObject: @escaping ([String : Any]?)->()) {
         if self.forTesting == false {
             if let request = self.buildRequest() {
@@ -183,10 +200,11 @@ class GetCovidDataFromServerGermany: GetCovidDataFromServerBase {
         return qItems
     }
 
+    
     override func GetCasesForCountiesAsync(ReceivedCases: @escaping ([CovidCase]?)->()) {
         Logger.funcStart.notice("GetCasesForCountiesAsync")
+        
         self.GetTheData() { jsonObject in
-            //self.printJsonDebug(jsonObject: jsonObject)
             if let jsonObject = jsonObject {
                 var cases = self.mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: jsonObject)
                 if cases.count > 0 {
@@ -239,12 +257,16 @@ class GetCovidDataFromServerGermany: GetCovidDataFromServerBase {
                     group.notify(qos: .default, queue: .main, execute: {
                         ReceivedCases(cases)
                     })
+                    
                 } else {
-                    ReceivedCases(nil)
+                    ReceivedCases(cases)
                 }
+            } else {
+                ReceivedCases(nil)
             }
         }
     }
+    
     
     private func mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: [String : Any]) -> [CovidCase] {
         
@@ -307,6 +329,7 @@ class GetCovidDataFromServerGermany: GetCovidDataFromServerBase {
     }
 }
 
+
 // MARK:- GetCovidDataFromServerGermany_CheckDateTime
 
 class GetCovidDataFromServerGermany_CheckDateTime: GetCovidDataFromServerBase, CheckForNewData{
@@ -316,6 +339,7 @@ class GetCovidDataFromServerGermany_CheckDateTime: GetCovidDataFromServerBase, C
     
     private lazy var qParam_where_all: URLQueryItem = URLQueryItem(name: "where", value: "1=1")
     
+    private lazy var qParam_outfields: URLQueryItem = URLQueryItem(name: "outFields", value: "")
     private lazy var qParam_outStatistics: URLQueryItem = URLQueryItem(name: "outStatistics", value: "[{\"statisticType\":\"MAX\",\"onStatisticField\":\"last_update\",\"outStatisticFieldName\":\"last_update\"}]")
     private lazy var qParam_outSR: URLQueryItem = URLQueryItem(name: "outSR", value: String(4326))
     private lazy var qParam_form: URLQueryItem = URLQueryItem(name: "f", value: "json")
@@ -327,6 +351,7 @@ class GetCovidDataFromServerGermany_CheckDateTime: GetCovidDataFromServerBase, C
         var qItems: [URLQueryItem] = [URLQueryItem]()
         
         qItems.append(self.qParam_where_all)
+        qItems.append(self.qParam_outfields)
         qItems.append(self.qParam_outStatistics)
         qItems.append(self.qParam_outSR)
         qItems.append(self.qParam_form)
@@ -345,6 +370,7 @@ class GetCovidDataFromServerGermany_CheckDateTime: GetCovidDataFromServerBase, C
                 if timeStamps.count > 0 {
                     let ti = DTAI.init(dateTimeAsInteger: timeStamps[0].datetime1000)
                     timeStamp = ti.dateTimeAsTimeInterval
+                    Logger.data.notice("-------Got date from server--------------> = '\(ti.DateTimeForDisplay(), privacy: .public)' - '\(timeStamp, privacy: .public)'")
                 }
             }
         }
@@ -368,10 +394,10 @@ class GetCovidDataFromServerGermany_CheckDateTime: GetCovidDataFromServerBase, C
     
     fileprivate func DoRequestAndWait(_ request: URLRequest, ReceivedJsonObject: @escaping ([String : Any]?)->()) {
         // From: https://stackoverflow.com/questions/38952420/swift-wait-until-datataskwithrequest-has-finished-to-call-the-return
-        
+
         var jsonObject = [String : Any]()
         let session = URLSession.shared
-        
+
         let sem = DispatchSemaphore.init(value: 0)
 
         let task = session.dataTask(with: request) { data, response, error in
@@ -396,7 +422,7 @@ class GetCovidDataFromServerGermany_CheckDateTime: GetCovidDataFromServerBase, C
                 }
 
                 jsonObject = jsonResultObject
-                
+
             } catch {
                 Logger.log.error("Error: Trying to convert JSON data to string.")
                 return
@@ -409,13 +435,27 @@ class GetCovidDataFromServerGermany_CheckDateTime: GetCovidDataFromServerBase, C
         // which will be once the data task has completed
         let whenWhen = DispatchTime.now() + DispatchTimeInterval.seconds(1 * 60) // Waits for 1 Minutes.
         let result : DispatchTimeoutResult = sem.wait(timeout: whenWhen)
-        
+
         if result == .timedOut {
             ReceivedJsonObject(nil)
         } else {
             ReceivedJsonObject(jsonObject)
         }
     }
+    
+//    fileprivate func DoRequestAndWait(_ request: URLRequest, ReceivedJsonObject: @escaping ([String : Any]?)->()) {
+//        Logger.funcStart.notice("DoRequestAndWait")
+//
+//        let theRequest = Request()
+//        let requestResult = theRequest.StartTaskAndWait(request)
+//
+//        if requestResult {
+//            ReceivedJsonObject(theRequest.jsonObjectResult)
+//        } else {
+//            ReceivedJsonObject(JsonObject())
+//        }
+//    }
+    
     
     fileprivate func GetDummyDataAndWait(ReceivedJsonObject: @escaping ([String : Any]?)->()) {
         DispatchQueue.global(qos: .background).sync {
@@ -517,22 +557,23 @@ class GetCovidDataFromServerGermany_GetRecovered: GetCovidDataFromServerBase {
         return qItems
     }
     
+    typealias RecoveredCases = [String:CovidCase_Recovered]
     
-    public func GetRecoveredCasesForCountiesAsync(ReceivedCases: @escaping ([String:CovidCase_Recovered]?)->()) {
+    public func GetRecoveredCasesForCountiesAsync(ReceivedCases: @escaping (RecoveredCases?)->()) {
         self.GetTheData() { jsonObject in
-            //self.printJsonDebug(jsonObject: jsonObject)
+            var rc: RecoveredCases?
             if let jsonObject = jsonObject {
-                let recovered_cases = self.mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: jsonObject)
-                ReceivedCases(recovered_cases)
+                rc = self.mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: jsonObject)
             }
+            ReceivedCases(rc)
         }
     }
 
     
-    private func mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: [String : Any]) -> [String:CovidCase_Recovered] {
+    private func mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: [String : Any]) -> RecoveredCases {
         Logger.funcStart.notice("mapJsonRespondObjectToSQLLiteObjects_Casese(1)")
         
-        var items = [String:CovidCase_Recovered]()
+        var items = RecoveredCases()
         
         let _ = self.printJsonDebug(jsonObject: jsonObject)
         
@@ -600,22 +641,22 @@ class GetCovidDataFromServerGermany_NewCases: GetCovidDataFromServerBase {
         return qItems
     }
 
-    
-    public func GetNewCasesForCountiesAsync(ReceivedCases: @escaping ([String:CovidCase_NewCases]?)->()) {
+    typealias NewCases = [String:CovidCase_NewCases]
+    public func GetNewCasesForCountiesAsync(ReceivedCases: @escaping (NewCases?)->()) {
         self.GetTheData() { jsonObject in
-            //self.printJsonDebug(jsonObject: jsonObject)
+            var nc: NewCases?
             if let jsonObject = jsonObject {
-                let new_cases = self.mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: jsonObject)
-                ReceivedCases(new_cases)
+                nc = self.mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: jsonObject)
             }
+            ReceivedCases(nc)
         }
     }
     
     
-    private func mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: [String : Any]) -> [String:CovidCase_NewCases] {
+    private func mapJsonRespondObjectToSQLLiteObjects_Casese(jsonObject: [String : Any]) -> NewCases {
         Logger.funcStart.notice("mapJsonRespondObjectToSQLLiteObjects_Casese(2)")
         
-        var items = [String:CovidCase_NewCases]()
+        var items = NewCases()
         var item: CovidCase_NewCases
         var idLandkreis: String
         var cases: Int64
@@ -673,3 +714,250 @@ class GetCovidDataFromServerGermany_NewCases: GetCovidDataFromServerBase {
     }
     
 }
+
+
+
+//class Request: NSObject {
+//    
+//    public var session: URLSession?
+//    private var sem: DispatchSemaphore?
+//    public var jsonObjectResult: JSONObject?
+//    private var receivedJsonObjectDelegate: ((JSONObject?)->())?
+//    var receivedData: Data?
+//    
+//    let urlSessionConfiguration: URLSessionConfiguration = {
+//        let configuration = URLSessionConfiguration.background(withIdentifier: AppDefaultConfiguration.backgroundURLSessionIdentifier + String(DispatchTime.now().rawValue))
+//        //configuration.sessionSendsLaunchEvents = false
+//        configuration.sharedContainerIdentifier = AppDefaultConfiguration.containerSharedGroup
+//        configuration.urlCache = nil
+//        return configuration
+//    }()
+//
+//    
+//    deinit {
+//        Logger.funcStart.notice("deinit")
+//        self.session?.invalidateAndCancel()
+//        self.session = nil
+//        self.receivedData = nil
+//    }
+//    
+//    
+//    public func StartTaskAndWait(_ request: URLRequest) -> Bool {
+//        Logger.funcStart.notice("StartTaskAndWait")
+//        
+//        var result: Bool = false
+//        
+//        self.receivedData = Data()
+//        
+//        let sessionConfiguration = self.urlSessionConfiguration
+//        self.session = URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
+//        
+//        // initialize Semaphore.
+//        self.sem = DispatchSemaphore.init(value: 0)
+//        
+//        // Send a task
+//        if let task = self.session?.dataTask(with: request) {
+//            // start the task, tasks are not started by default
+//            task.resume()
+//        }
+//        
+//        // Create a TimeOut
+//        let timeOutInSeconds = DispatchTime.now() + DispatchTimeInterval.seconds(1 * 30) // Waits for 30 seconds.
+//        
+//        // And wait.
+//        let timeOutResult = self.sem!.wait(timeout: timeOutInSeconds)
+//        //let timeOutResult = self.WaitForResult()
+//        
+//        // Invalidate Session.
+//        self.session?.finishTasksAndInvalidate()
+//        self.session = nil
+//        
+//        // Handle Timeouts
+//        if timeOutResult == .timedOut {
+//            Logger.log.error("TimeOut on request.")
+//            result = false
+//        } else {
+//            Logger.log.notice("Request OK.")
+//            result = true
+//        }
+//        
+//        return result
+//    }
+//    
+//
+//    public func StartTaskAsync(_ request: URLRequest, receivedJsonObject: @escaping (JSONObject?)->()) {
+//        Logger.funcStart.notice("StartTaskAndWait")
+//        
+//        self.receivedData = Data()
+//        
+//        let sessionConfiguration = self.urlSessionConfiguration
+//        self.session = URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
+//        
+//        self.receivedJsonObjectDelegate = receivedJsonObject
+//        
+//        // Send a task
+//        if let task = self.session?.dataTask(with: request) {
+//            // start the task, tasks are not started by default
+//            task.resume()
+//        }
+//    }
+//    
+//    private func WaitForResult() -> DispatchTimeoutResult {
+//        let timeOutInSeconds = DispatchTime.now() + DispatchTimeInterval.seconds(1 * 30) // Waits for 30 seconds.
+//        while DispatchTime.now() <= timeOutInSeconds {
+//            if let jObjectResult = self.jsonObjectResult {
+//                if jObjectResult.isEmpty == false {
+//                    print("Got result")
+//                    return .success
+//                }
+//            }
+//            sleep(1)
+//            print("Waiting ... " + DispatchTime.now().rawValue.description)
+//        }
+//        return .timedOut
+//    }
+//}
+//
+//
+//
+//extension Request: URLSessionDelegate {
+//
+//    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+//        // We've got a URLAuthenticationChallenge - we simply trust the HTTPS server and we proceed
+//        Logger.funcStart.notice("URLSessionDelegate->urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)")
+//        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+//    }
+//
+//    func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+//        Logger.funcStart.notice("URLSessionDelegate->urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?)")
+//        // We've got an error
+//        if let err = error {
+//            Logger.log.error("Error: \(err.localizedDescription)")
+//        }
+//    }
+//    
+//    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+//        Logger.funcStart.notice("URLSessionDelegate->urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?)")
+//        DispatchQueue.main.async {
+//            if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let completionHandler = appDelegate.backgroundSessionCompletionHandler {
+//              appDelegate.backgroundSessionCompletionHandler = nil
+//              completionHandler()
+//            }
+//        }
+//    }
+//}
+//
+//
+//extension Request: URLSessionDataDelegate {
+//    
+//    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome streamTask: URLSessionStreamTask) {
+//        Logger.funcStart.notice("URLSessionDataDelegate->urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome streamTask: URLSessionStreamTask)")
+//        //print("didBecome streamTask")
+//        streamTask.resume()
+//    }
+//
+//    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome downloadTask: URLSessionDownloadTask) {
+//        Logger.funcStart.notice("URLSessionDataDelegate->urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome downloadTask: URLSessionDownloadTask)")
+//        // The task became a download task - start the task
+//        //print("didBecome downloadTask")
+//        downloadTask.resume()
+//    }
+//
+//    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+//        Logger.funcStart.notice("URLSessionDataDelegate->urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)")
+//        // We've got a URLAuthenticationChallenge - we simply trust the HTTPS server and we proceed
+//        //print("didReceive challenge")
+//        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+//    }
+//
+//    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: (URLRequest?) -> Void) {
+//        // The original request was redirected to somewhere else.
+//        // We create a new dataTask with the given redirection request and we start it.
+//        Logger.funcStart.notice("URLSessionDataDelegate->urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: (URLRequest?) -> Void)")
+//        if let urlString = request.url?.absoluteString {
+//            Logger.log.notice("willPerformHTTPRedirection to \(urlString)")
+//        } else {
+//            Logger.log.notice("willPerformHTTPRedirection")
+//        }
+//        if let task = self.session?.dataTask(with: request) {
+//            task.resume()
+//        }
+//    }
+//
+//    
+//    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+//        
+//        Logger.funcStart.notice("URLSessionDataDelegate->urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)")
+//        
+//        defer {
+//            if let _ = self.receivedJsonObjectDelegate {
+//                self.receivedJsonObjectDelegate!(self.jsonObjectResult)
+//            }
+//            if let _ = self.sem {
+//                Logger.log.notice("Sending Sem-Signal. The END.")
+//                self.sem!.signal()
+//            }
+//        }
+//        
+//        if let _ = error {
+//            Logger.log.error("Error: \(error!.localizedDescription)")
+//        }
+//        
+//        if let receivedData = self.receivedData {
+//            do {
+//                guard let jsonObject = try JSONSerialization.jsonObject(with: receivedData) as? [String: Any] else {
+//                    Logger.log.error("Error: Cannot convert data to JSON object.")
+//                    return
+//                }
+//                
+//                self.printJsonDebug(jsonObject: jsonObject)
+//                
+//                self.jsonObjectResult = jsonObject
+//            } catch let error as NSError {
+//                Logger.log.error("Error parsing JSON: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+//
+//    
+//    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: (URLSession.ResponseDisposition) -> Void) {
+//        Logger.funcStart.notice("URLSessionDataDelegate->urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: (URLSession.ResponseDisposition) -> Void)")
+//        
+//        guard let response = response as? HTTPURLResponse,
+//            (200...299).contains(response.statusCode),
+//            let mimeType = response.mimeType,
+//            mimeType == "text/plain" else {
+//            Logger.log.error("Error: HTTP request failed")
+//            completionHandler(.cancel)
+//            return
+//        }
+//        
+//        completionHandler(.allow)
+//
+//    }
+//    
+//    
+//    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+//        Logger.funcStart.notice("urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data)")
+//        if let _ = self.receivedData {
+//            self.receivedData!.append(data)
+//        }
+//    }
+//    
+//    
+//    fileprivate func printJsonDebug(jsonObject: [String : Any]?) {
+//        guard let prettyJsonData = try? JSONSerialization.data(withJSONObject: jsonObject!, options: .prettyPrinted) else {
+//            Logger.log.error("Error: Cannot convert JSON object to Pretty JSON data")
+//            return
+//        }
+//        guard let prettyPrintedJson = String(data: prettyJsonData, encoding: .utf8) else {
+//            Logger.log.error("Error: Could print JSON in String")
+//            return
+//        }
+//        if fullJasonPrint == true {
+//            print("Result: ", prettyPrintedJson)
+//        } else {
+//            Logger.log.notice("JSON received: '\(prettyPrintedJson.prefix(33), privacy: .public) ...'")
+//        }
+//    }
+//}

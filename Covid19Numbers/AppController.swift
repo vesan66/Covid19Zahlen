@@ -10,6 +10,7 @@ import Foundation
 import os.log
 import Combine
 import UIKit
+import WidgetKit
 
 public protocol AppControllerFunctions {
     func Start()
@@ -17,6 +18,8 @@ public protocol AppControllerFunctions {
     func WantUpdateFrom_UserRefresh()
     func GetObservedProperties() -> ObservedProperties
     func GetObservedPropertiesSummary() -> ObservedProperties
+    func GetInterCom() -> InterCom
+    
     func StoreFavorites(favoritesStored: @escaping(Bool)->())
     func DelteAndRemoveAFavorite(idLandkreis: String)
     func CalculateSummaryData()
@@ -30,6 +33,7 @@ public final class AppController: NSObject, AppControllerFunctions {
     
     private let obProps = ObservedProperties()
     private let obPropsSumm = ObservedProperties()
+    private let interCom = InterCom()
     
     public func GetObservedProperties() -> ObservedProperties {
         return obProps
@@ -39,18 +43,26 @@ public final class AppController: NSObject, AppControllerFunctions {
         return obPropsSumm
     }
     
+    public func GetInterCom() -> InterCom {
+        return self.interCom
+    }
+    
     private(set) var sqliteMan = DBManager()
     
-    public let updateSerialQueue = DispatchQueue(label: "updateQueue", qos: .background)
+    //public let updateSerialQueue = DispatchQueue(label: "updateQueue", qos: .background)
     
     private var isAppLaunch = false
     private var isInitialDisplayAfterAppLaunch = false
-    private var cancellableNewDataArrived: AnyCancellable?
+    
+    private var cancellableDisplayNewDataChanged: AnyCancellable?
     private var cancellableAppStatusChanged: AnyCancellable?
+    private var cancellableNewDataInLocalDBChanged: AnyCancellable?
+    
     private let updater = Updater()
     private var infoFrameDisplay: Timer?
     
     private var backgroundTaskID: UIBackgroundTaskIdentifier?
+    
     
     override private init() {
         super.init()
@@ -66,7 +78,7 @@ public final class AppController: NSObject, AppControllerFunctions {
         // Userdata
         self.start_UserData()
         
-        // Transfer Some Data from UserDatat to obsProps
+        // Transfer Some Data from UserData to obsProps
         self.obProps.latestTimeStampOfDB = UserStorage.share.latestTimeStampAtLocalDB
         self.obProps.currentSort = UserStorage.share.sortOrder
         
@@ -80,14 +92,19 @@ public final class AppController: NSObject, AppControllerFunctions {
         // Nothing to do.
         
         //Setup watches
-        self.cancellableNewDataArrived = obProps.$newDataArrived.sink(receiveValue: { [weak self] newDataArrived in
+        self.cancellableDisplayNewDataChanged = obProps.$displayNewData.sink(receiveValue: { [weak self] _ in
             guard let self = self else { return }
-            self.newDataArrivedWatch(newDataArrived: newDataArrived)
+            self.displayNewData()
         })
         
         self.cancellableAppStatusChanged = obProps.$appStatus.sink(receiveValue: { [weak self] appStatus in
             guard let self = self else { return }
             self.appStatusChanged(newAppStatus: appStatus)
+        })
+        
+        self.cancellableNewDataInLocalDBChanged = self.interCom.$newDataInLocalDB.sink(receiveValue: { [weak self] _ in
+            guard let self = self else { return }
+            self.newDataInLocalDB()
         })
         
         #if DEBUG
@@ -106,22 +123,48 @@ public final class AppController: NSObject, AppControllerFunctions {
             self.wantUpdateFrom_AppLaunch()
         }
     }
+
     
-    
-    private func newDataArrivedWatch(newDataArrived: Bool) {
-        Logger.funcStart.notice("newDataArrivedWatch: \(newDataArrived.description, privacy: .public)")
-        if newDataArrived == true {
-            Logger.log.notice("New data here. Going to display.")
-            // Do Display
-            self.GetAndDisplayData()
-            return
-        }
+    private func newDataInLocalDB() {
+        Logger.funcStart.notice("=======================newDataInLocalDB")
+        
+        self.obProps.latestTimeStampOfDB = UserStorage.share.latestTimeStampAtLocalDB
+        
+        // Display (new) data.
+        self.GetAndDisplayData()
+        
+        // Say 'Hello' to Widgets.
+        WidgetCenter.shared.reloadAllTimelines()
+        
+        // This to prevent an imidiate Refresh.
         if self.isInitialDisplayAfterAppLaunch == true {
             Logger.log.notice("First time display after app launch.")
             self.isInitialDisplayAfterAppLaunch = false
-            self.GetAndDisplayData()
-            return
         }
+    }
+    
+    
+    private func GetAndDisplayData() {
+        Logger.funcStart.notice("=======================*** GetAndDisplayData ***")
+        self.obProps.appStatus = .LoadingDataFromDB
+        self.sqliteMan.GetLastTwoDaysOfCovidCasesForDisplayAsync(orderBy: UserStorage.share.sortOrder, loadedData: { [weak self] dataForDisplay in
+            guard let self = self else { return }
+            DispatchQueue.main.async{
+                Logger.data.notice("self.obProps.dataForDisplay.case.count = \(dataForDisplay.cases.count, privacy: .public)")
+                Logger.data.notice("self.obProps.dataForDisplay.casesFavorites.count = \(dataForDisplay.casesFavorites.count, privacy: .public)")
+                Logger.data.notice("UserStorage.share.latestTimeStampAtLocalDB: \(DTAI(dateTimeAsInteger: UserStorage.share.latestTimeStampAtLocalDB).DateTimeForDisplay())")
+                self.obProps.appStatus = .NoError
+                self.obProps.dataForDisplay = dataForDisplay
+                self.obProps.latestTimeStampOfDB      = UserStorage.share.latestTimeStampAtLocalDB
+                self.obProps.latestTimeStampAtDisplay = UserStorage.share.latestTimeStampAtLocalDB
+                self.obProps.raiseDisplayData()
+            }
+        })
+    }
+    
+    
+    private func displayNewData() {
+        Logger.funcStart.notice("=======================displayNewData")
     }
     
     
@@ -202,23 +245,6 @@ public final class AppController: NSObject, AppControllerFunctions {
     }
     
     
-    private func GetAndDisplayData() {
-        Logger.funcStart.notice("*** GetAndDisplayData ***")
-        self.obProps.loadingDataFromDB = true
-        self.sqliteMan.GetLastTwoDaysOfCovidCasesForDisplayAsync(orderBy: UserStorage.share.sortOrder, loadedData: {
-            [weak self] dataForDisplay in
-            guard let self = self else { return }
-            DispatchQueue.main.async{
-                Logger.data.notice("self.obProps.dataForDisplay.case.count = \(dataForDisplay.cases.count, privacy: .public)")
-                Logger.data.notice("self.obProps.dataForDisplay.casesFavorites.count = \(dataForDisplay.casesFavorites.count, privacy: .public)")
-                self.obProps.loadingDataFromDB = false
-                self.obProps.dataForDisplay = dataForDisplay
-                self.obProps.latestTimeStampOfDB = UserStorage.share.latestTimeStampAtLocalDB
-            }
-        })
-    }
-    
-    
     public func ChangeSortOrder(sortOrder: SortType) {
         Logger.funcStart.notice("ChangeSortOrder")
         if ( sortOrder == UserStorage.share.sortOrder) {
@@ -227,7 +253,7 @@ public final class AppController: NSObject, AppControllerFunctions {
         }
         UserStorage.share.sortOrder = sortOrder
         self.obProps.currentSort = sortOrder
-        self.GetAndDisplayData()
+        self.newDataInLocalDB()
     }
     
     
@@ -248,6 +274,7 @@ public final class AppController: NSObject, AppControllerFunctions {
         }
     }
     
+    
     private func SetAppStatusToCheckGet() {
         Logger.funcStart.notice("SetAppStatusToCheckGet")
         DispatchQueue.main.async() {
@@ -258,66 +285,40 @@ public final class AppController: NSObject, AppControllerFunctions {
     
     public func WantUpdateFrom_UserRefresh() {
         Logger.funcStart.notice("WantUpdateFrom_UserRefresh")
-        self.wantUpdateAsync(.manual)
+        self.updater.DoManualUpdateAsync()
     }
+    
     
     private func wantUpdateFrom_AppAwake() {
         Logger.funcStart.notice("wantUpdateFrom_AppAwake")
-        self.wantUpdateAsync(.onActivateApp)
+        self.updater.DoReactivateAppUpdateAsync()
     }
+    
     
     private func wantUpdateFrom_AppLaunch() {
         Logger.funcStart.notice("wantUpdateFrom_AppLaunch")
-        self.wantUpdateAsync(.onActivateApp)
+        self.updater.DoReactivateAppUpdateAsync()
     }
+    
     
     private func wantUpdateFrom_Initial() {
         Logger.funcStart.notice("wantUpdateFrom_Initial")
-        self.wantUpdateAsync(.initial)
+        self.updater.DoInitialUpdateAsync()
     }
+    
     
     private func wantUpdateFrom_BackgroundTask() -> Bool {
         Logger.funcStart.notice("wantUpdateFrom_BackgroundTask")
-        self.wantUpdateAsync(.backgroundTask)
-        return true
-    }
-    
-    private func wantUpdateAsync(_ updateKind: UpdateKind) {
-        Logger.funcStart.notice("wantUpdateAsync: \(updateKind.rawValue, privacy: .public)")
-    
-        if self.sqliteMan.dbIsOpen == false {
-            Logger.log.error("However: Database is not ready. Senseless to fetch new data.")
-            return
-        }
-        
-        // Go into Update-Process
-        updateSerialQueue.async { [weak self] in
-            guard let self = self else { return }
-            switch updateKind {
-                case .backgroundTask:
-                    self.updater.onBackgroundUpdate()
-                case .initial:
-                    // Display the action
-                    self.SetAppStatusToCheckGet()
-                    self.updater.onInitialUpdate()
-                case .manual:
-                    // Display the action
-                    self.SetAppStatusToCheckGet()
-                    self.updater.ManualUpdate()
-                case .onActivateApp:
-                    self.updater.onReactivateAppUpdate()
-            }
-        }
-        
+        return self.updater.DoBackgroundUpdateAwait()
     }
 
+    
     private func willEnterForegroundMain() {
         Logger.funcStart.notice("willEnterForegroundMain")
         self.hideInfoFrame()
-        self.updater.resetInBackgroundUpdate()
         if self.isAppLaunch == true {
             self.isAppLaunch = false
-            // Don't call it from here: Wasting time, to wait for display. Maybe we can do its before.
+            // Don't call it from here: Wasting time, to wait for display. Maybe we can do it before.
             //self.wantUpdateFrom_AppLaunch()
         } else {
             self.wantUpdateFrom_AppAwake()
@@ -328,11 +329,22 @@ public final class AppController: NSObject, AppControllerFunctions {
     private func ResetApplication() {
         Logger.funcStart.notice("ResetApplication")
         self.hideInfoFrame()
+        
+        // 0. Clear ObProps
+        self.obProps.clear()
+        self.obPropsSumm.clear()
+        self.interCom.clear()
+        
         // 1. Reset USerStorage
         UserStorage.share.ClearData()
+        
         // 2. Wipe Database
         self.WipeDataBase()
+        
+        // 3. Go to display
+        self.newDataInLocalDB()
     }
+    
     
     private func RemoveLastDay() {
         Logger.funcStart.notice("RemoveLastDay")
@@ -349,11 +361,14 @@ public final class AppController: NSObject, AppControllerFunctions {
                     if self.sqliteMan.DataBaseIsEmptyAwait() == true {
                         UserStorage.share.databaseIsEmpty = true
                     }
-                    self.GetAndDisplayData()
+                    self.obProps.latestTimeStampOfDB      = UserStorage.share.latestTimeStampAtLocalDB
+                    self.obProps.latestTimeStampAtDisplay = 0
+                    self.newDataInLocalDB()
                 }
             }
         }
     }
+    
     
     private func start_Database() {
         // Create and Open the Database
@@ -373,6 +388,7 @@ public final class AppController: NSObject, AppControllerFunctions {
         }
     }
     
+    
     private func start_UserData() {
         UserStorage.share.CheckForFirstStartAndInitialize()
         UserStorage.share.GetSetVersionAndBuild()
@@ -380,44 +396,11 @@ public final class AppController: NSObject, AppControllerFunctions {
         UserStorage.share.onRemoveLastDowload(function: self.RemoveLastDay)
     }
     
+    
     private func WipeDataBase() {
         self.sqliteMan.WipeDatabase()
         self.sqliteMan = DBManager()
         self.start_Database()
-    }
-    
-    
-    private func doCleanUps() {
-        // Perform the task on a background queue.
-        DispatchQueue.global().async {
-            // Request the task assertion and save the ID.
-            self.backgroundTaskID = UIApplication.shared.beginBackgroundTask (withName: "finish_task") {
-                // End the task if time expires.
-                Logger.log.notice("Backgroundtime expired.")
-                if self.updater.inForegroundUpdate == true {
-                    Logger.log.error("(2) There was a pending foreground activity: Resetting.")
-                }
-                self.updater.resetInForegroundUpdate()
-                UIApplication.shared.endBackgroundTask(self.backgroundTaskID!)
-                self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
-            }
-
-            // Do some stuff.
-            Logger.log.notice("Left over foreground.")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
-                Logger.log.notice("Checking for pending ForeGroundFlag")
-                if self.updater.inForegroundUpdate == true {
-                    Logger.log.error("(1) There was a pending foreground activity: Resetting.")
-                    self.updater.resetInForegroundUpdate()
-                } else {
-                    Logger.log.notice("No pending ForeGroundFlag found. Good.")
-                }
-            }
-            
-            // End the task assertion.
-            UIApplication.shared.endBackgroundTask(self.backgroundTaskID!)
-            self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
-       }
     }
     
     
@@ -431,38 +414,57 @@ public final class AppController: NSObject, AppControllerFunctions {
 extension AppController {
     
     private func initializeBackGroundTaskManagement() {
-        
-        BackGroundTaskController.shared.RegisterBackgroundTask()
-        
-        BackGroundTaskController.shared.SetEstimationFunction(function: { [weak self] in
-            guard let self = self else { return Estimation(false) }
-            return self.EstimateNextExecutionTime()
-        })
-        
-        BackGroundTaskController.shared.SetWorkloadFunction(function: { [weak self] in
-            guard let self = self else { return true }
-            return self.GetDataFromServerByBackgroundTask()
-        })
+//
+////        // ** Processing **
+////        BackGroundTaskController.shared.RegisterBackgroundProcessingTask() // Processing
+////        BackGroundTaskController.shared.SetEstimationProcessingTaskFunction(function: { [weak self] in  // Processing
+////            guard let self = self else { return Estimation(false) }
+////            return self.EstimateNextExecutionTime()
+////        })
+////        BackGroundTaskController.shared.SetWorkloadProcessingTaskFunction(function: { [weak self] in // Processing
+////            guard let self = self else { return true }
+////            return self.GetDataFromServerByBackgroundTask()
+////        })
+//
+//
+//        // ** Refresh **
+//        BackGroundTaskController.shared.RegisterBackgroundRefreshTask() // Refresh
+//        BackGroundTaskController.shared.SetEstimationRefreshTaskFunction(function: { [weak self] in  // Refresh
+//            guard let self = self else { return Estimation(false) }
+//            return self.EstimateNextExecutionTime()
+//        })
+//        BackGroundTaskController.shared.SetWorkloadRefreshTaskFunction(function: { [weak self] in // Refresh
+//            guard let self = self else { return true }
+//            return self.GetDataFromServerByBackgroundTask()
+//        })
     }
+    
     
     public func willEnterForeground() {
         Logger.funcStart.notice("*** Entering Foreground ***")
-        BackGroundTaskController.shared.CancelAllTaskRequests()
+//        BackGroundTaskController.shared.CancelAllTaskRequests()
         self.willEnterForegroundMain()
     }
     
+    
     public func didEnterBackground() {
         Logger.funcStart.notice("*** Entering Background ***")
-        BackGroundTaskController.shared.EnqueueNewBackgroundTask()
-        self.doCleanUps()
+//
+////        // ** Processing **
+////        BackGroundTaskController.shared.EnqueueNewBackgroundProcessingTask() // Processing
+//
+//
+//        // ** Refresh **
+//        BackGroundTaskController.shared.EnqueueNewBackgroundRefreshTask() // Refresh
     }
+    
     
     private func EstimateNextExecutionTime() -> Estimation {
         return Estimation(true, Date(timeIntervalSinceNow: AppDefaultConfiguration.timeSpanUntilNextBackgroundFetch))
     }
     
+    
     private func GetDataFromServerByBackgroundTask() -> Bool {
         return self.wantUpdateFrom_BackgroundTask()
     }
-
 }

@@ -20,6 +20,7 @@
 "ErrorGettingData" = "Fehler beim Datenbezug.";
 "NoInitalUpdateAllowed" = "Initiales Update nicht erlaubt.";
 "CheckingGettingNewData" = "Auf neue Daten prüfen und laden.";
+"LoadingDataFromDB" = "Lade Daten aus DB.";
 "ID_Landkreise" = "Landkreise";
 "ID_Landkreis" = "Landkreis";
 "ID_Alle" = "Alle";

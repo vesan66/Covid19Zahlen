@@ -37,7 +37,7 @@ let fullJasonPrint: Bool = false
 
 final class AppDefaultConfiguration {
     
-    public static let containerSharedGroup:    String = "group.com.Covid19Numbers"
+    public static let containerSharedGroup:           String = "group.com.Covid19Numbers"
     
     private static let dbNameForTesting:        String = "covidnumberstesting.sqlite"
     private static let dbNameForUnitTesting:    String = "covidnumbersunittesting.sqlite"
@@ -45,13 +45,15 @@ final class AppDefaultConfiguration {
     private static let dbNamePreview:           String = "covidnumberspreview.sqlite"
     
     #if MAINAPP
-    public static let timeForNextManualRetry:          TimeInterval =      60 * 60   // e.g. 1 hour
-    public static let timeForNextonActivateRefresh:    TimeInterval =  1 * 60 * 60   // e.g. 1 hours
-    public static let timeSpanUntilNextBackgroundFetch:TimeInterval =  1 * 60 * 60   // e.g. 1 hours
+    public static let timeForNextManualRetry:          TimeInterval =         10 * 60  // 10 minutes
+    public static let timeForNextonActivateRefresh:    TimeInterval =     1 * 60 * 60  // 1 hour
+    public static let timeSpanUntilNextBackgroundFetch:TimeInterval =     1 * 60 * 60  // 1 hour
     
     public static let backgroundTaskIdentifierProcess: String = "com.Covid19Numbers.process"
     public static let backgroundTaskIdentifierRefresh: String = "com.Covid19Numbers.refresh"
     
+    public static let backgroundURLSessionIdentifier: String = "com.Covid19Numbers.backgroundURLSession"
+
     public static let displayInfoForSeconds: TimeInterval = 3
     
     public static let InfoText_RTF_FileName: String = "infotext_"

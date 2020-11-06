@@ -619,7 +619,7 @@ class SQLiteReader: NSObject {
         
         while(sqlite3_step(stmt) == SQLITE_ROW){
             result = sqlite3_column_int64(stmt, 0)
-            Logger.log.notice("Received NewestDateTime1000 = '\(String(result ?? 0),privacy: .public)" )
+            Logger.log.notice("Received NewestDateTime1000 = '\(String(result ?? 0),privacy: .public)'" )
             break
         }
         sqlite3_finalize(stmt)

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import os.log
 
 class DataBaseNeedsUpdate: NSObject, Sensor, SensorAfterMath {
 
@@ -39,8 +40,10 @@ class DataBaseNeedsUpdate: NSObject, Sensor, SensorAfterMath {
     }
     
     func GetLatestTimeStampOfServer() -> Int64 {
+        Logger.funcStart.notice("GetLatestTimeStampOfServer")
         let serverCall = GetCovidDataFromServerGermany_CheckDateTime()
         let timeStamp = serverCall.GetTimeStampOfData()
+        Logger.data.notice("Timestamp from server: \(timeStamp)")
         return Int64(timeStamp * 1000)
     }
     

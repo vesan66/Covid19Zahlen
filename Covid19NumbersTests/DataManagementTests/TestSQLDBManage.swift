@@ -102,6 +102,7 @@ class TestSQLDBManage: XCTestCase {
         }
         
         let _ = cut!.OpenDataBaseAwait()
+        cut!.userStorage = nil
         
         var item : CovidCase = CovidCase()
         item.OBJECTID  = 304

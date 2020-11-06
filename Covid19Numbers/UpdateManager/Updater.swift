@@ -8,119 +8,229 @@
 
 import Foundation
 import os.log
-import WidgetKit
+
+
+
 
 public class Updater: NSObject {
-    public private(set) var inForegroundUpdate: Bool = false { didSet { Logger.log.notice("InForegroundUpdate was set to '\(self.inForegroundUpdate, privacy: .public)'.")   } }
-    private var inBackgroundUpdate: Bool = false { didSet { Logger.log.notice("InBackgroundUpdate was set to '\(self.inBackgroundUpdate, privacy: .public)'.")   } }
     
+    public let updateSerialQueue = DispatchQueue(label: "updater.updateQueue", qos: .background)
+    
+    public enum UpdateKind: String {
+        case backgroundTask = "backgroundTask"
+        case manual         = "manual"
+        case initial        = "initial"
+        case onActivateApp  = "onActivateApp"
+    }
+    
+    private enum UpdateProcessing: CustomStringConvertible {
+        
+        case idle
+        case background
+        case foreground
+        
+        var description: String {
+            switch self {
+                case .idle: return "idle"
+                case .background: return "background"
+                case .foreground: return "foreground"
+            }
+        }
+    }
+    
+    private var inProcess = UpdateProcessing.idle {
+        didSet {
+            Logger.log.notice("InForegroundUpdate was set to '\(self.inProcess, privacy: .public)'.")
+        }
+    }
 
     
-    public func resetInForegroundUpdate() {
-        Logger.funcStart.notice("resetInForegroundUpdate")
-        self.inForegroundUpdate = false
+    public func GetQueue() -> DispatchQueue? {
+        // This seems strange, but: The foreground-processes, like manual update and so on have their own queue.
+        // The BackgroundTask runs better, when launched on 'DispatchQueue.main'.
+        
+        switch self.inProcess {
+            case .background:
+                return DispatchQueue.main
+            case .foreground:
+                return self.updateSerialQueue
+            default:
+                return nil
+        }
     }
-    
-    
-    public func resetInBackgroundUpdate() {
-        Logger.funcStart.notice("resetInBackgroundUpdate")
-        self.inBackgroundUpdate = false
-    }
-    
-    
+        
     private func AnyUpdatePending() -> Bool {
         Logger.funcStart.notice("AnyUpdatePending")
-        Logger.log.notice("InForegroundUpdate is '\(self.inForegroundUpdate, privacy: .public)'.")
-        Logger.log.notice("InBackgroundUpdate is '\(self.inBackgroundUpdate, privacy: .public)'.")
-        return inForegroundUpdate == true || inBackgroundUpdate == true
+        Logger.log.notice("InProcess-Flag is: '\(self.inProcess, privacy: .public)'")
+        return !(self.inProcess == UpdateProcessing.idle)
     }
     
     
-    private func ClearAnyUpdatePendingFlag() {
-        self.resetInForegroundUpdate()
-        self.resetInBackgroundUpdate()
+    fileprivate func ClearProcessingFlag() {
+        Logger.funcStart.notice("ClearAnyUpdatePendingFlag")
+        self.inProcess = UpdateProcessing.idle
     }
     
     
-    // MARK: - Update Modes
-    func ManualUpdate() {
-        let m_um: UpdateManager_Manual = UpdateManager_Manual()
-        self.Update(m_um)
+    // MARK: - Public Functions
+    public func DoManualUpdateAsync() {
+        Logger.funcStart.notice("DoManualUpdate")
+        self.UpdateSelector(.manual)
     }
     
-    func onReactivateAppUpdate() {
-        let m_um: UpdateManager_BecomeActive = UpdateManager_BecomeActive()
-        self.Update(m_um)
+    public func DoReactivateAppUpdateAsync() {
+        Logger.funcStart.notice("DoReactivateAppUpdate")
+        self.UpdateSelector(.onActivateApp)
     }
     
-    func onBackgroundUpdate() {
-        let m_um = UpdateManager_BackgroundTask()
-        self.Update(m_um)
+    public func DoBackgroundUpdateAwait() -> Bool {
+        Logger.funcStart.notice("DoBackgroundUpdate")
+        fatalError("Currently not supported")
+//        self.UpdateSelector(.backgroundTask)
+//        return false
     }
     
-    func onInitialUpdate() {
-        let m_um = UpdateManager_Initial()
-        self.Update(m_um)
+    public func DoInitialUpdateAsync() {
+        Logger.funcStart.notice("DoInitialUpdate")
+        self.UpdateSelector(.initial)
+    }
+    
+    
+    
+    private func UpdateSelector(_ kind: UpdateKind) {
+        Logger.funcStart.notice("=======================UpdateSelector: Selected kind: \(kind.rawValue, privacy: .public)")
+  
+        if AppController.share.sqliteMan.dbIsOpen == false { Logger.log.notice("SQLite not ready. Senseless to do anything."); return }
+        
+        if self.AnyUpdatePending() == true { Logger.log.notice("Skipping update, because ones pending."); return }
+        
+        let m_um: UpdateManager
+        
+        switch kind {
+            case .backgroundTask:
+                Logger.log.error("Background processind deactivated.")
+                return
+//                self.inProcess = .background
+//                m_um = UpdateManager_BackgroundTask()
+            case .initial:
+                self.inProcess = .foreground
+                m_um = UpdateManager_Initial()
+            case .onActivateApp:
+                self.inProcess = .foreground
+                m_um = UpdateManager_BecomeActive()
+            case .manual:
+                self.inProcess = .foreground
+                m_um = UpdateManager_Manual()
+        }
+        
+        if let q = self.GetQueue() {
+            q.async { [weak self] in
+                guard let self = self else { return }
+                self.Update(m_um)
+            }
+        }
     }
     
     
     // MARK: - Update Function
+    
+    //var callbackObj: CallBackObject?
+    
     private func Update(_ m_um: UpdateManager) {
-        if self.AnyUpdatePending() == true {
-            Logger.log.notice("Skipping update, because ones pending.")
-            return
-        }
-        
-        
-        if m_um is UpdateManager_BackgroundTask {
-            self.inBackgroundUpdate = true
-            self.inForegroundUpdate = false
-        } else {
-            self.inForegroundUpdate = true
-            self.inBackgroundUpdate = false
-        }
-        
-        
-        DispatchQueue.main.async { AppController.appFunctions.GetObservedProperties().newDataArrived = false }
-        
+        Logger.funcStart.notice("Update")
+
         m_um.InitializeSubModules()
         
         // Check
         let updateIsAllowed = m_um.UpdateIsAllowed()
-        Logger.log.notice("UpdateIsAllowed overall-result: \(updateIsAllowed, privacy: .public)")
+        Logger.data.notice("UpdateIsAllowed overall-result: \(updateIsAllowed, privacy: .public)")
         
-        // Is allowed: Do the Work
+        // Call the Update. At the end, the CallBackObject calls aftermath!
+        let callbackObj = CallBackObject(updater: self, updateManager: m_um, updateIsAllowed: updateIsAllowed)
+        //callbackObj = CallBackObject(updater: self, updateManager: m_um, updateIsAllowed: updateIsAllowed)
+        
+        // IMPORTANT: Call the 'callbackObj'!
         if updateIsAllowed == .yes_allowed {
-
-            // MARK: - Do the Update
-            let callbackObj = CallBackObject(updater: self, updateManager: m_um, updateIsAllowed: updateIsAllowed)
-            PerformUpdate(callbackObj)
-            return
-            
+            self.PerformUpdate(callbackObj)
+        } else {
+            callbackObj.DoCallBack(updateResult: .undefined)
         }
-        self.AfterMath(m_um, updateIsAllowed: updateIsAllowed, updateResultIn: PerformedUpdateStatus.undefined)
+        
     }
     
+    
+    private func PerformUpdate(_ callBackObject: CallBackObject) {
+        Logger.funcStart.notice("PerformUpdate")
+
+        // Get a new Instance for the Serverfetch
+        let getDataFromServer = GetCovidDataFromServerGermany()
+        
+        // Use the given SQLite-Man
+        let sqliteMan = AppController.share.sqliteMan
+
+        // Get new Data from the Server
+        Logger.log.notice("Going to execute 'GetCasesForCountiesAsync'.")
+        getDataFromServer.GetCasesForCountiesAsync(){ newReceivedCases in
+            if let newReceivedCases = newReceivedCases {
+                Logger.data.notice("Received \(newReceivedCases.count, privacy: .public) from the servers.")
+                if newReceivedCases.count == 0 {
+                    // No new Data at the server!
+                    Logger.log.error("GetCasesForCountiesAsync returned 0 cases.")
+                    callBackObject.DoCallBack(updateResult: .serverHasNoNewData)
+                    return
+                } else {
+                    // Insert new Items in SQLite.
+                    Logger.log.notice("Going to insert Data: InsertItemsAsyncWithCallback().")
+                    sqliteMan.InsertItemsAsyncWithCallback(items: newReceivedCases, callbackObject: callBackObject)
+                    return
+                }
+            } else {
+                // ServerError?
+                Logger.log.error("GetCasesForCountiesAsync returned NIL.")
+                callBackObject.DoCallBack(updateResult: .failed)
+                return
+            }
+        }
+    }
+    
+    
+    private func WaitForResult(monitor: CallBackObject, timetowait: TimeInterval) -> DispatchTimeoutResult {
+        let timeOutInSeconds = DispatchTime.now() + DispatchTimeInterval.seconds(Int(timetowait))
+        while DispatchTime.now() <= timeOutInSeconds {
+            if monitor.finished == true {
+                return .success
+            }
+            sleep(1)
+            print("Waiting ... " + DispatchTime.now().rawValue.description)
+        }
+        return .timedOut
+    }
+    
+    
     func AfterMath(_ m_um: UpdateManager, updateIsAllowed: IsUpdateAllowed, updateResultIn: PerformedUpdateStatus ) {
+        Logger.funcStart.notice("AfterMath")
+        
         var updateResult = updateResultIn
         
         // LocalDatabase is upToDate: Nothing to do.
         if updateIsAllowed == .no_upToDate {
+            
             // Nothing to do: This is a success
             updateResult = PerformedUpdateStatus.success
-        }
+            
+        } // Everything else neagtive in 'updateIsAllowed' is an error.
         
-        // Everything else in 'updateIsAllowed' is an error.
         
         // Do updates for the UpdateChecker. E.g. set last execution time.
         let result_After = m_um.AfterMath(updateAllowed: updateIsAllowed, updateStatus: updateResult)
         
-        self.ClearAnyUpdatePendingFlag()
         
         DispatchQueue.main.async {
             Logger.log.notice("AfterMathEnums: updateIsAllowed = \(updateIsAllowed, privacy: .public), updateResult = \(updateResult, privacy: .public)")
+        
+            let obProps  = AppController.appFunctions.GetObservedProperties()
+            let interCom = AppController.appFunctions.GetInterCom()
             
-            let obProps = AppController.appFunctions.GetObservedProperties()
             if updateIsAllowed == .no_upToDate {
                 obProps.appStatus = .NoNewDataOnServer
             } else if updateIsAllowed == .no_noNetwork {
@@ -133,11 +243,12 @@ public class Updater: NSObject {
                 obProps.appStatus = .NoInitalUpdateAllowed
             } else if updateIsAllowed == .yes_allowed {
                 if updateResult == .success {
-                    obProps.appStatus = .NewDataForDisplay
-                    obProps.newDataArrived = true
                     
-                    // Say 'Hello' to Widgets.
-                    WidgetCenter.shared.reloadAllTimelines()
+                    
+                    // There are new Data for display
+                    obProps.appStatus = .NewDataForDisplay
+                    interCom.SetNewDataInLocalDB()
+                    
                     
                 } else if updateResult == .failed {
                     obProps.appStatus = .ErrorGettingData
@@ -146,46 +257,23 @@ public class Updater: NSObject {
                 }
             }
         }
-        
         Logger.log.notice("AfterMath-Result: \(result_After, privacy: .public)")
     }
     
     
-    private func PerformUpdate(_ callBackObject: CallBackObject) {
-        Logger.funcStart.notice("PerformUpdate")
-            
-        let getDataFromServer = GetCovidDataFromServerGermany()
-        let sqliteMan = AppController.share.sqliteMan
-        if sqliteMan.dbIsOpen == false {
-            Logger.log.error("DB is not present.")
-            return
-        }
-        
-        // Get new Data from the Server
-        Logger.log.notice("Going to execute 'GetCasesForCountiesAsync'.")
-        getDataFromServer.GetCasesForCountiesAsync(){ newReceivedCases in
-            if let newReceivedCases = newReceivedCases {
-                Logger.log.notice("Received \(newReceivedCases.count, privacy: .public) from the servers.")
-                if newReceivedCases.count == 0 {
-                    callBackObject.DoCallBack(updateResult: .serverHasNoNewData)
-                } else {
-                    sqliteMan.InsertItemsAsyncWithCallback(items: newReceivedCases, callbackObject: callBackObject)
-                }
-            } else {
-                // ServerError?
-                callBackObject.DoCallBack(updateResult: .failed)
-            }
-        }
-    }
+
 }
 
 
 public class CallBackObject {
     private var updateManager: UpdateManager?
     private var updateIsAllowed = IsUpdateAllowed.undefined
-    private var updater: Updater?
+    public private(set) var updater: Updater?
+    public var finished: Bool = false
     
     private init() { }
+    
+    
     init(updater: Updater, updateManager: UpdateManager, updateIsAllowed: IsUpdateAllowed) {
         self.updateManager = updateManager
         self.updateIsAllowed = updateIsAllowed
@@ -193,6 +281,13 @@ public class CallBackObject {
     }
     
     func DoCallBack(updateResult: PerformedUpdateStatus) {
+        
+        // Always set 'finished'. This execution is one-shot.
+        defer { self.finished = true }
+        
+        // Perform the code only once.
+        if self.finished { return }
+        
         guard let updateManager = self.updateManager else {
             Logger.log.error("'updateManager' not set.")
             return
@@ -201,8 +296,18 @@ public class CallBackObject {
             Logger.log.error("'updater' not set.")
             return
         }
+        
+        // Workload.
         updater.AfterMath(updateManager, updateIsAllowed: self.updateIsAllowed, updateResultIn: updateResult)
+        updater.ClearProcessingFlag()
         self.updateManager = nil
         self.updater = nil
+    }
+    
+    deinit {
+        if self.finished == false {
+            Logger.log.critical("******* CallBackObject was not called. *******")
+            updater?.ClearProcessingFlag()
+        }
     }
 }
