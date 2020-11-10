@@ -4,6 +4,7 @@ Eine native IOS-App für IPhones ab iOS-Version 14.
 
 ### Screnshots
 ![Favoriten](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6676_klein.png)
+![Favoriten](/screenshotsklein/IMG_6676_klein.png)
 ![Alle](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6677_klein.png)
 ![Details](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6678_klein.png)
 ![Summen](https://github.com/vesan66/Covid19Zahlen/blob/main/screenshotsklein/IMG_6679_klein.png)
