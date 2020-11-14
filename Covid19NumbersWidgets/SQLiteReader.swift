@@ -22,7 +22,7 @@ class SQLiteReader: NSObject {
     
     public let serialQueue = DispatchQueue(label: "com.CovidNumbers.serialQueue.SQLITE")
     
-    private let deletCasesOlderThen: Int64 = 7
+    private let keepTimeSpanOfDays = AppDefaultConfiguration.keepTimeSpanOfDaysDefault
     
     private let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
     
@@ -366,7 +366,7 @@ class SQLiteReader: NSObject {
                 }
                 
                 
-                // Check if a new Gropu is needed.
+                // Check if a new Group is needed.
                 if level == 3 {
                     if let _ = sortSet[cCase.idLandkreis] {
                         // Nothing to do.
@@ -374,7 +374,7 @@ class SQLiteReader: NSObject {
                         // Create new COUNTY and append it to the returnValue and to sort Helper
                         let newOne  = CovidCasesPerObjectIDP()
                         
-                        SetUpSevenDays(startDate1000: newestDate1000, county: newOne)
+                        SetUpTimeSpan(startDate1000: newestDate1000, county: newOne)
                         sortSet[cCase.idLandkreis] = newOne
                         covidCasesP.cases.append(newOne)
                     }
@@ -409,14 +409,15 @@ class SQLiteReader: NSObject {
                 
                 
                 // Do summeries
-                SetUpSevenDaysForSummary(startDate1000: newestDate1000, county: summary)
+                SetUpTimeSpanForSummary(startDate1000: newestDate1000, county: summary)
                 
                 // Hier jetzt durch alle Counties loopen und über alle Tage und dann die Simmen in Summary eintragen.
                 var absoluteInfections7Days: Double = 0
-                var itemsProccessed = [Int](repeating: 0, count: 7)
+                var absoluteEWZFor7Days: Int64 = 0
+                var itemsProccessed = [Int](repeating: 0, count: self.keepTimeSpanOfDays)
                 for oneCounty in covidCasesP.cases {  // Counties
                     if oneCounty.idLandkreis.isEmpty == false {
-                        for index in (0...6) {  // Days
+                        for index in (0 ... (summary.cases.count - 1)) {  // Days
                             summary.cases[index].cases = summary.cases[index].cases + oneCounty.cases[index].cases
                             summary.cases[index].cases_per_100k = summary.cases[index].cases_per_100k + oneCounty.cases[index].cases_per_100k
 
@@ -428,6 +429,7 @@ class SQLiteReader: NSObject {
                             
                             if index == 0 {
                                 absoluteInfections7Days = absoluteInfections7Days + oneCounty.cases[index].cases7_per_100k / 100000.00 * Double(oneCounty.cases[index].EWZ)
+                                absoluteEWZFor7Days = absoluteEWZFor7Days + oneCounty.cases[index].EWZ
                             }
                             
                             itemsProccessed[index] += 1
@@ -457,7 +459,7 @@ class SQLiteReader: NSObject {
                 
                 if passed == true {
                     
-                    for index in (0...6).reversed() {
+                    for index in (0 ... (summary.cases.count - 1)).reversed() {
                         
                         // 1-Day-Incidence
                         summary.cases[index].newCases_per_100k = Double(summary.cases[index].newCases) / Double(summary.cases[index].EWZ) * 100000.00
@@ -465,7 +467,8 @@ class SQLiteReader: NSObject {
                         
                         // 7-Day-Incidence only for the latest day.
                         if index == 0 {
-                            summary.cases[index].cases7_per_100k = absoluteInfections7Days / Double(summary.cases[index].EWZ) * 100000.00
+                            //summary.cases[index].cases7_per_100k = absoluteInfections7Days / Double(summary.cases[index].EWZ) * 100000.00
+                            summary.cases[index].cases7_per_100k = absoluteInfections7Days / Double(absoluteEWZFor7Days) * 100000.00
                             summary.cases[index].cases7SummaryComplete = true
                         }
                         
@@ -484,6 +487,7 @@ class SQLiteReader: NSObject {
 
         return covidCasesP
     }
+    
     
     private func ImportCaseToCounty(county: CovidCasesPerObjectIDP, caseForImport: CovidCaseP) {
         
@@ -518,26 +522,28 @@ class SQLiteReader: NSObject {
         }
     }
     
-    private func SetUpSevenDays(startDate1000: Int64, county: CovidCasesPerObjectIDP) {
+    
+    private func SetUpTimeSpan(startDate1000: Int64, county: CovidCasesPerObjectIDP) {
         var newStartDate : Int64 = 0
-        
-        for index in (1...7) {
+
+        for index in (1 ... self.keepTimeSpanOfDays) {
             if index == 1 {
                 newStartDate = startDate1000
             } else {
                 newStartDate = newStartDate - DTAI.aDayInSecondsAsInteger
             }
-        
+
             let ccase = CovidCaseP()
             county.cases.append(ccase)
             county.casesKeys[newStartDate] = ccase
         }
     }
     
-    private func SetUpSevenDaysForSummary(startDate1000: Int64, county: CovidCasesPerObjectIDP) {
+    
+    private func SetUpTimeSpanForSummary(startDate1000: Int64, county: CovidCasesPerObjectIDP) {
         var newStartDate : Int64 = 0
         
-        for index in (1...7) {
+        for index in (1 ... self.keepTimeSpanOfDays) {
             if index == 1 {
                 newStartDate = startDate1000
             } else {
@@ -551,6 +557,7 @@ class SQLiteReader: NSObject {
         }
     }
     
+    
     private func FillAggregatedFieldsOfCounty(county: CovidCasesPerObjectIDP, favoriteCounties: inout [CovidCasesPerObjectIDP], favorites: inout [String:String]) {
         if county.cases.count > 0 {
             county.idLandkreis = county.cases[0].idLandkreis
@@ -563,6 +570,7 @@ class SQLiteReader: NSObject {
             favorites.removeValue(forKey: county.idLandkreis)
         }
     }
+    
     
     private func CreateReturnCCaseObject(_ queryStatement: OpaquePointer?) -> CovidCaseP {
         var unsafeTextPointer: UnsafePointer<UInt8>?

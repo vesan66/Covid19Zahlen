@@ -70,8 +70,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "123"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
 
         // Act
         let result: Bool = cut!.InsertItemAwait(item: item)
@@ -115,8 +115,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "123"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
         UserStorage.share.ClearData()
         NotificationCenter.default.addObserver(self, selector: #selector(self.CheckUserData), name: UserDefaults.didChangeNotification, object: nil)
         
@@ -159,8 +159,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "123"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
         
         // First Insert:
         let _ = cut!.InsertItemAwait(item: item)
@@ -202,8 +202,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "123"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
         
         var item2 : CovidCase = CovidCase()
         item2.OBJECTID  = 304
@@ -216,8 +216,8 @@ class TestSQLDBManage: XCTestCase {
         item2.cases7_per_100k = 27.806270622984002
         item2.last_update = "24.09.2020, 00:00 Uhr"
         item2.idLandkreis = "123"
-        item2.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item2.last_update)
-        item2.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
+        item2.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item2.last_update)
+        item2.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
         
         // First Insert:
         let _ = cut!.InsertItemAwait(item: item)
@@ -248,8 +248,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "123"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
         
         var item2 : CovidCase = CovidCase()
         item2.OBJECTID  = 304
@@ -262,8 +262,8 @@ class TestSQLDBManage: XCTestCase {
         item2.cases7_per_100k = 27.806270622984002
         item2.last_update = "24.09.2020, 00:00 Uhr"
         item2.idLandkreis = "123"
-        item2.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item2.last_update)
-        item2.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
+        item2.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item2.last_update)
+        item2.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
         
         // First Insert:
         let _ = cut!.InsertItemAwait(item: item)
@@ -291,8 +291,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "304"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
         
         var item2 : CovidCase = CovidCase()
         item2.OBJECTID  = 305
@@ -305,8 +305,8 @@ class TestSQLDBManage: XCTestCase {
         item2.cases7_per_100k = 24.806270622984002
         item2.last_update = "23.09.2020, 00:00 Uhr"
         item2.idLandkreis = "305"
-        item2.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item2.last_update)
-        item2.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
+        item2.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item2.last_update)
+        item2.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
         
         var item3 : CovidCase = CovidCase()
         item3.OBJECTID  = 304
@@ -319,8 +319,8 @@ class TestSQLDBManage: XCTestCase {
         item3.cases7_per_100k = 17.806270622984002
         item3.last_update = "24.09.2020, 00:00 Uhr"
         item3.idLandkreis = "304"
-        item3.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item3.last_update)
-        item3.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item3.idLandkreis, last_update: item3.datetime1000))
+        item3.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item3.last_update)
+        item3.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item3.idLandkreis, last_update: item3.datetime1000))
         
         var item4 : CovidCase = CovidCase()
         item4.OBJECTID  = 305
@@ -333,8 +333,8 @@ class TestSQLDBManage: XCTestCase {
         item4.cases7_per_100k = 55.806270622984002
         item4.last_update = "24.09.2020, 00:00 Uhr"
         item4.idLandkreis = "305"
-        item4.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item4.last_update)
-        item4.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item4.idLandkreis, last_update: item4.datetime1000))
+        item4.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item4.last_update)
+        item4.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item4.idLandkreis, last_update: item4.datetime1000))
         
         
         // First Insert:
@@ -368,8 +368,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "304"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
 
         var item2 : CovidCase = CovidCase()
         item2.OBJECTID  = 305
@@ -382,8 +382,8 @@ class TestSQLDBManage: XCTestCase {
         item2.cases7_per_100k = 24.806270622984002
         item2.last_update = "23.09.2020, 00:00 Uhr"
         item2.idLandkreis = "305"
-        item2.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item2.last_update)
-        item2.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
+        item2.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item2.last_update)
+        item2.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
 
         var item3 : CovidCase = CovidCase()
         item3.OBJECTID  = 304
@@ -396,8 +396,8 @@ class TestSQLDBManage: XCTestCase {
         item3.cases7_per_100k = 17.806270622984002
         item3.last_update = "24.09.2020, 00:00 Uhr"
         item3.idLandkreis = "304"
-        item3.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item3.last_update)
-        item3.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item3.idLandkreis, last_update: item3.datetime1000))
+        item3.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item3.last_update)
+        item3.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item3.idLandkreis, last_update: item3.datetime1000))
 
         var item4 : CovidCase = CovidCase()
         item4.OBJECTID  = 305
@@ -410,8 +410,8 @@ class TestSQLDBManage: XCTestCase {
         item4.cases7_per_100k = 55.806270622984002
         item4.last_update = "24.09.2020, 00:00 Uhr"
         item4.idLandkreis = "305"
-        item4.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item4.last_update)
-        item4.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item4.idLandkreis, last_update: item4.datetime1000))
+        item4.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item4.last_update)
+        item4.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item4.idLandkreis, last_update: item4.datetime1000))
 
 
         // First Insert:
@@ -450,8 +450,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "304"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
         
         var item2 : CovidCase = CovidCase()
         item2.OBJECTID  = 305
@@ -464,8 +464,8 @@ class TestSQLDBManage: XCTestCase {
         item2.cases7_per_100k = 24.806270622984002
         item2.last_update = "23.09.2020, 00:00 Uhr"
         item2.idLandkreis = "305"
-        item2.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item2.last_update)
-        item2.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
+        item2.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item2.last_update)
+        item2.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
         
         var item3 : CovidCase = CovidCase()
         item3.OBJECTID  = 304
@@ -478,8 +478,8 @@ class TestSQLDBManage: XCTestCase {
         item3.cases7_per_100k = 17.806270622984002
         item3.last_update = "24.09.2020, 00:00 Uhr"
         item3.idLandkreis = "304"
-        item3.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item3.last_update)
-        item3.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item3.idLandkreis, last_update: item3.datetime1000))
+        item3.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item3.last_update)
+        item3.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item3.idLandkreis, last_update: item3.datetime1000))
         
         var item4 : CovidCase = CovidCase()
         item4.OBJECTID  = 305
@@ -492,8 +492,8 @@ class TestSQLDBManage: XCTestCase {
         item4.cases7_per_100k = 55.806270622984002
         item4.last_update = "24.09.2020, 00:00 Uhr"
         item4.idLandkreis = "305"
-        item4.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item4.last_update)
-        item4.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item4.idLandkreis, last_update: item4.datetime1000))
+        item4.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item4.last_update)
+        item4.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item4.idLandkreis, last_update: item4.datetime1000))
         
         
         // First Insert:
@@ -526,8 +526,8 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.last_update = "23.09.2020, 00:00 Uhr"
         item.idLandkreis = "304"
-        item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+        item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
         
         var item2 : CovidCase = CovidCase()
         item2.OBJECTID  = 305
@@ -540,8 +540,8 @@ class TestSQLDBManage: XCTestCase {
         item2.cases7_per_100k = 24.806270622984002
         item2.last_update = "23.09.2020, 00:00 Uhr"
         item2.idLandkreis = "305"
-        item2.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item2.last_update)
-        item2.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
+        item2.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item2.last_update)
+        item2.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
         
         var item3 : CovidCase = CovidCase()
         item3.OBJECTID  = 304
@@ -554,8 +554,8 @@ class TestSQLDBManage: XCTestCase {
         item3.cases7_per_100k = 17.806270622984002
         item3.last_update = "24.09.2020, 00:00 Uhr"
         item3.idLandkreis = "304"
-        item3.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item3.last_update)
-        item3.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item3.idLandkreis, last_update: item3.datetime1000))
+        item3.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item3.last_update)
+        item3.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item3.idLandkreis, last_update: item3.datetime1000))
 
         
         
@@ -606,7 +606,7 @@ class TestSQLDBManage: XCTestCase {
     func testTimeSubtraction() throws {
         // Arrange
         let newestDate: String = "26.09.2020, 16:52 Uhr"
-        let newestDateTime1000: Int64 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: newestDate)
+        let newestDateTime1000: Int64 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: newestDate)
         
         let _ = cut!.OpenDataBaseAwait()
 
@@ -621,10 +621,10 @@ class TestSQLDBManage: XCTestCase {
     func testTimeSubtraction_2() throws {
         // Arrange
         let oneDay: Int64 = 86400 * 1000
-        let sevenDays: Int64 = oneDay * 7
+        let sevenDays: Int64 = oneDay * Int64(AppDefaultConfiguration.deleteCasesOlderThenDefault)
         
         let newestDate: String = "26.09.2020, 00:00 Uhr"
-        let newestDateTime1000: Int64 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: newestDate)
+        let newestDateTime1000: Int64 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: newestDate)
         let _ = cut!.OpenDataBaseAwait()
 
         // Act
@@ -651,13 +651,13 @@ class TestSQLDBManage: XCTestCase {
         item.cases7_per_100k = 27.806270622984002
         item.idLandkreis = "123"
         //item.last_update = "23.09.2020, 00:00 Uhr"
-        //item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        //item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(OBJECTID: item.OBJECTID, last_update: item.last_update))
+        //item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+        //item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(OBJECTID: item.OBJECTID, last_update: item.last_update))
         
         for index in (14...23).reversed() {
             item.last_update = "\(String(index)).09.2020, 00:00 Uhr"
-            item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-            item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+            item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+            item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
             let _ = cut!.InsertItemAwait(item: item)
         }
         
@@ -670,7 +670,7 @@ class TestSQLDBManage: XCTestCase {
         XCTAssertTrue(result == true)
         let casesAfterDelete = cut!.CountCasesAwait()
         XCTAssertTrue(actualPresentCasese == 10)
-        XCTAssertTrue(casesAfterDelete == 7)
+        XCTAssertTrue(casesAfterDelete! == AppDefaultConfiguration.deleteCasesOlderThenDefault)
         
     }
     
@@ -689,14 +689,14 @@ class TestSQLDBManage: XCTestCase {
         item.cases_per_100k = 389.28778872177702
         item.cases7_per_100k = 27.806270622984002
         item.idLandkreis = "123"
-        //item.last_update = "23.09.2020, 00:00 Uhr"
-        //item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-        //item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(OBJECTID: item.OBJECTID, last_update: item.last_update))
         
-        for index in (14...20).reversed() {
+        let a = 14
+        let b = a + AppDefaultConfiguration.deleteCasesOlderThenDefault + 6
+        
+        for index in (a ... (b - 1)).reversed() {
             item.last_update = "\(String(index)).09.2020, 00:00 Uhr"
-            item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-            item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+            item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+            item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
             let _ = cut!.InsertItemAwait(item: item)
         }
         
@@ -708,8 +708,8 @@ class TestSQLDBManage: XCTestCase {
         //Assert
         XCTAssertTrue(result == true)
         let casesAfterDelete = cut!.CountCasesAwait()
-        XCTAssertTrue(actualPresentCasese == 7)
-        XCTAssertTrue(casesAfterDelete == 7)
+        XCTAssertTrue(actualPresentCasese! == (b - a))
+        XCTAssertTrue(casesAfterDelete! == AppDefaultConfiguration.deleteCasesOlderThenDefault)
         
     }
     

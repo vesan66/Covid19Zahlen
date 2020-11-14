@@ -11,15 +11,11 @@ import XCTest
 
 class TestGetCovidDataFromServerGermany: XCTestCase {
     
-    var cut: GetCovidDataFromServerGermany?
-    
     override func setUpWithError() throws {
         self.IsUnitTestParameterSet()
-        cut = GetCovidDataFromServerGermany()
     }
 
     override func tearDownWithError() throws {
-        cut = nil
     }
 
     func testDateConversion_1() throws {
@@ -28,7 +24,7 @@ class TestGetCovidDataFromServerGermany: XCTestCase {
         let expected: Date = self.HelperDate(dateString: "2020/09/23 00:00")
         
         // Act
-        let datetime1000: Int64 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: testDate)
+        let datetime1000: Int64 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: testDate)
         
         // Assert
         XCTAssertEqual(datetime1000, Int64(expected.timeIntervalSince1970 * 1000), "Conversion not OK.")
@@ -40,7 +36,7 @@ class TestGetCovidDataFromServerGermany: XCTestCase {
         let expected: Date = self.HelperDate(dateString: "2020/09/23 00:59")
         
         // Act
-        let datetime1000: Int64 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: testDate)
+        let datetime1000: Int64 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: testDate)
         
         // Assert
         XCTAssertEqual(datetime1000, Int64(expected.timeIntervalSince1970 * 1000), "Conversion not OK.")

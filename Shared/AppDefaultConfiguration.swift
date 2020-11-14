@@ -38,11 +38,14 @@ let fullJasonPrint: Bool = false
 final class AppDefaultConfiguration {
     
     public static let containerSharedGroup:           String = "group.com.Covid19Numbers"
+    public static let userDataMonitorKey:             String = "userDataMonitor"
     
     private static let dbNameForTesting:        String = "covidnumberstesting.sqlite"
     private static let dbNameForUnitTesting:    String = "covidnumbersunittesting.sqlite"
     private static let dbNameProduction:        String = "covidnumbers.sqlite"
     private static let dbNamePreview:           String = "covidnumberspreview.sqlite"
+    
+    public static let keepTimeSpanOfDaysDefault: Int = 8
     
     #if MAINAPP
     public static let timeForNextManualRetry:          TimeInterval =         10 * 60  // 10 minutes
@@ -60,6 +63,8 @@ final class AppDefaultConfiguration {
     public static let info_RTF_Text: NSAttributedString = LanguageHelpers.LoadNSAttributedString(AppDefaultConfiguration.InfoText_RTF_FileName)
     
     public static let barMaxValue: Double = 50
+    
+    public static let deleteCasesOlderThenDefault: Int = keepTimeSpanOfDaysDefault
     #endif
     
     #if DEBUG

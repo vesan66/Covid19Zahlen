@@ -23,7 +23,9 @@ struct SummarySheetCountyView: View {
     var body: some View {
         
         VStack(spacing: 0){
-            
+//            Button(action: {self.obProps.raiseDisplayDataOfOneCounty()}) {
+//                Text("Reload")
+//            }
             Text(NSLocalizedString("ID_County_Abbrev", comment: "") + self.obProps.dataOfOneCounty.idLandkreis)
                 .font(.caption)
                 .padding(Edge.Set.top, 10)
@@ -45,11 +47,13 @@ struct SummarySheetCountyView: View {
                                 OneDaySummaryCountyView(summary: .constant(self.obProps.dataOfOneCounty.cases[index]))
                             }
                         }
+                        
                     }
                 }
                 .listStyle(PlainListStyle())
             }            
         }.navigationBarTitle(self.obProps.dataOfOneCounty.DisplayName, displayMode: .inline)
+        .id(obProps.displayNewDataOfOneCounty)
     }
 }
 

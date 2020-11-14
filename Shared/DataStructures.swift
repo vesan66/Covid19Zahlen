@@ -15,6 +15,7 @@ public enum SortType: Int {
     case cases1Per100k = 4
 }
 
+public typealias CovidCaseS = [CovidCase]
 public struct CovidCase {
     var id: Int64 = 0
     var OBJECTID: Int64 = 0

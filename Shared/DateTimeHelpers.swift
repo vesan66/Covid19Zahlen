@@ -11,6 +11,8 @@ import Foundation
 /// Helper structure for dealing with the dates.
 public struct DTAI {
     
+    public typealias DateTime1000 = Int64
+    
     private static let discardMiliSecByExtending: Int64 = 1000
     static let aDayInSecondsAsInteger: Int64 = 24 * 60 * 60 * DTAI.discardMiliSecByExtending
     

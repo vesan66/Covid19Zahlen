@@ -15,7 +15,8 @@ class DBManager: NSObject {
     
     public let serialQueue = DispatchQueue(label: "com.CovidNumbers.serialQueue.SQLITE")
     
-    private let deletCasesOlderThen: Int64 = 7
+    private let deleteCasesOlderThen = AppDefaultConfiguration.deleteCasesOlderThenDefault
+    private let keepTimeSpanOfDays = AppDefaultConfiguration.keepTimeSpanOfDaysDefault
     
     private let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
     
@@ -37,25 +38,38 @@ class DBManager: NSObject {
     
     public weak var userStorage = UserStorage.share
     
-    private func CloseDataBase() {
+    
+    private func CloseDataBase() -> Bool {
+        Logger.funcStart.notice("CloseDataBase")
+        
+        var result = false
         if self.db != nil {
-            sqlite3_close(db)
-            self.db = nil
-            self.dbIsOpen = false
-        }
+            let closeResult = sqlite3_close(db)
+            Logger.data.notice("Returnvalue of sqlite3_close: \(closeResult, privacy: .public)")
+            result = closeResult == SQLITE_OK
+            if result {
+                self.db = nil
+                self.dbIsOpen = false
+            }
+        } else { result = true }
+        return result
     }
 
     
-    public func CloseDataBaseAwait() {
-        serialQueue.sync { [weak self] in
-            guard let self = self else { return }
-            self.CloseDataBase()
+    public func CloseDataBaseAwait() -> Bool {
+//        serialQueue.sync { [weak self] in
+//            guard let self = self else { return }
+        var result = false
+        
+        serialQueue.sync {
+            result =  self.CloseDataBase()
         }
+        return result
     }
     
     
     deinit {
-        self.CloseDataBase()
+        let _ = self.CloseDataBase()
     }
     
     
@@ -73,7 +87,7 @@ class DBManager: NSObject {
     
     
     public func WipeDatabase() {
-        self.CloseDataBaseAwait()
+        let _ = self.CloseDataBaseAwait()
 
 //        let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
 //            .appendingPathComponent(self.actualDBName)
@@ -195,8 +209,9 @@ class DBManager: NSObject {
     
     
     public func InsertItemsAwait(items: [CovidCase]){
-        serialQueue.sync { [weak self] in
-            guard let self = self else { return }
+//        serialQueue.sync { [weak self] in
+//            guard let self = self else { return }
+        serialQueue.sync {
             self.InsertItems(items: items)
         }
     }
@@ -269,7 +284,8 @@ class DBManager: NSObject {
     
     private func UpdateUserStorage(timeStamp1000: Int64, hasData: Bool) {
         if let us = self.userStorage {
-            DispatchQueue.main.sync {
+            //DispatchQueue.main.sync {
+            self.executeOnMain() {
                 
                 // Store the latest TimeStamp in UserData.
                 us.latestTimeStampAtLocalDB = timeStamp1000
@@ -283,6 +299,16 @@ class DBManager: NSObject {
         }
     }
     
+    
+    private func executeOnMain(execute block: () -> Void) {
+        if Thread.isMainThread {
+            block()
+        } else {
+          DispatchQueue.main.sync {
+            block()
+          }
+        }
+    }
     
     public func InsertItemAwait(item: CovidCase) -> Bool {
         var result = false
@@ -650,7 +676,7 @@ class DBManager: NSObject {
     
     public func SubstractDaysFromDateTime1000(dateTime1000: Int64) -> Int64 {
         
-        let daysToSubtract: TimeInterval = TimeInterval(deletCasesOlderThen)
+        let daysToSubtract: TimeInterval = TimeInterval(deleteCasesOlderThen)
         let secondsToSubtract: TimeInterval = (daysToSubtract * 24 * 60 * 60)
         
         // Make seconds to Date.
@@ -995,7 +1021,7 @@ extension DBManager {
                 }
                 
                 
-                // Check if a new Gropu is needed.
+                // Check if a new Group is needed.
                 if level == 3 {
                     if let _ = sortSet[cCase.idLandkreis] {
                         // Nothing to do.
@@ -1003,7 +1029,7 @@ extension DBManager {
                         // Create new COUNTY and append it to the returnValue and to sort Helper
                         let newOne  = CovidCasesPerObjectIDP()
                         
-                        SetUpSevenDays(startDate1000: newestDate1000, county: newOne)
+                        SetUpTimeSpan(startDate1000: newestDate1000, county: newOne)
                         sortSet[cCase.idLandkreis] = newOne
                         covidCasesP.cases.append(newOne)
                     }
@@ -1038,14 +1064,15 @@ extension DBManager {
                 
                 
                 // Do summeries
-                SetUpSevenDaysForSummary(startDate1000: newestDate1000, county: summary)
+                SetUpTimeSpanForSummary(startDate1000: newestDate1000, county: summary)
                 
-                // Hier jetzt durch alle Counties loopen und über alle Tage und dann die Simmen in Summary eintragen.
+                // Hier jetzt durch alle Counties loopen und über alle Tage und dann die Summen in Summary eintragen.
                 var absoluteInfections7Days: Double = 0
-                var itemsProccessed = [Int](repeating: 0, count: 7)
+                var absoluteEWZFor7Days: Int64 = 0
+                var itemsProccessed = [Int](repeating: 0, count: self.keepTimeSpanOfDays)
                 for oneCounty in covidCasesP.cases {  // Counties
                     if oneCounty.idLandkreis.isEmpty == false {
-                        for index in (0...6) {  // Days
+                        for index in (0 ... (summary.cases.count - 1)) {  // Days
                             summary.cases[index].cases = summary.cases[index].cases + oneCounty.cases[index].cases
                             summary.cases[index].cases_per_100k = summary.cases[index].cases_per_100k + oneCounty.cases[index].cases_per_100k
 
@@ -1057,6 +1084,7 @@ extension DBManager {
                             
                             if index == 0 {
                                 absoluteInfections7Days = absoluteInfections7Days + oneCounty.cases[index].cases7_per_100k / 100000.00 * Double(oneCounty.cases[index].EWZ)
+                                absoluteEWZFor7Days = absoluteEWZFor7Days + oneCounty.cases[index].EWZ
                             }
                             
                             itemsProccessed[index] += 1
@@ -1086,7 +1114,7 @@ extension DBManager {
                 
                 if passed == true {
                     
-                    for index in (0...6).reversed() {
+                    for index in (0 ... (summary.cases.count - 1)).reversed() {
                         
                         // 1-Day-Incidence
                         summary.cases[index].newCases_per_100k = Double(summary.cases[index].newCases) / Double(summary.cases[index].EWZ) * 100000.00
@@ -1094,7 +1122,8 @@ extension DBManager {
                         
                         // 7-Day-Incidence only for the latest day.
                         if index == 0 {
-                            summary.cases[index].cases7_per_100k = absoluteInfections7Days / Double(summary.cases[index].EWZ) * 100000.00
+                            //summary.cases[index].cases7_per_100k = absoluteInfections7Days / Double(summary.cases[index].EWZ) * 100000.00
+                            summary.cases[index].cases7_per_100k = absoluteInfections7Days / Double(absoluteEWZFor7Days) * 100000.00
                             summary.cases[index].cases7SummaryComplete = true
                         }
                         
@@ -1149,10 +1178,10 @@ extension DBManager {
     }
     
     
-    private func SetUpSevenDays(startDate1000: Int64, county: CovidCasesPerObjectIDP) {
+    private func SetUpTimeSpan(startDate1000: Int64, county: CovidCasesPerObjectIDP) {
         var newStartDate : Int64 = 0
         
-        for index in (1...7) {
+        for index in (1 ... self.keepTimeSpanOfDays) {
             if index == 1 {
                 newStartDate = startDate1000
             } else {
@@ -1166,10 +1195,10 @@ extension DBManager {
     }
     
     
-    private func SetUpSevenDaysForSummary(startDate1000: Int64, county: CovidCasesPerObjectIDP) {
+    private func SetUpTimeSpanForSummary(startDate1000: Int64, county: CovidCasesPerObjectIDP) {
         var newStartDate : Int64 = 0
         
-        for index in (1...7) {
+        for index in (1 ... self.keepTimeSpanOfDays) {
             if index == 1 {
                 newStartDate = startDate1000
             } else {

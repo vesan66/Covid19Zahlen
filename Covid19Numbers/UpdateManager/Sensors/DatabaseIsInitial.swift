@@ -7,14 +7,17 @@
 //
 
 import Foundation
+import os.log
 
 class DatabaseIsInital: NSObject, Sensor, SensorAfterMath {
 
     private weak var updateManager: UpdateManager?
     
+    
     func SetParent(_ updateManager: UpdateManager) {
         self.updateManager = updateManager
     }
+    
     
     func IsSatisfied() -> Bool {
         let dbIsEmpty = DBIsEmpty()
@@ -25,13 +28,16 @@ class DatabaseIsInital: NSObject, Sensor, SensorAfterMath {
         return false
     }
     
+    
     func Initialize() -> Bool {
         return true
     }
     
+    
     func DeInitialize() -> Bool {
         return true
     }
+    
     
     func AfterMath(updateAllowed: IsUpdateAllowed, updateStatus: PerformedUpdateStatus) -> Bool {
         if updateAllowed == .yes_allowed && updateStatus == .success {
@@ -41,12 +47,7 @@ class DatabaseIsInital: NSObject, Sensor, SensorAfterMath {
         }
         return true
     }
-    
-    func GetLatestTimeStampOfServer() -> Int64 {
-        let serverCall = GetCovidDataFromServerGermany_CheckDateTime()
-        let timeStamp = serverCall.GetTimeStampOfData()
-        return Int64(timeStamp * 1000)
-    }
+
     
     func DBIsEmpty() -> Bool {
         return UserStorage.share.databaseIsEmpty

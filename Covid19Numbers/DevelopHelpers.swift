@@ -24,8 +24,8 @@ func MakeCounty() -> CovidCasesPerObjectIDP {
     item.cases_per_100k = 391.759457221597
     item.cases7_per_100k = 24.716684998208
     item.last_update = "24.09.2020, 00:00 Uhr"
-    item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-    item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+    item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+    item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
     item.GenerateDateTimeOfLastUpdate()
     item.GenerateDisplayName()
     item.genesen = 95
@@ -48,8 +48,8 @@ func MakeCounty() -> CovidCasesPerObjectIDP {
     item2.cases_per_100k = 389.28778872177702
     item2.cases7_per_100k = 27.806270622984002
     item2.last_update = "23.09.2020, 00:00 Uhr"
-    item2.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item2.last_update)
-    item2.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
+    item2.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item2.last_update)
+    item2.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
     item2.GenerateDateTimeOfLastUpdate()
     item2.GenerateDisplayName()
     item2.genesen = 35
@@ -75,8 +75,8 @@ func MakeSummary() -> CovidCaseP {
     item.cases_per_100k = 391.759457221597
     item.cases7_per_100k = 24.716684998208
     item.last_update = "24.09.2020, 00:00 Uhr"
-    item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-    item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+    item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+    item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
     item.GenerateDateTimeOfLastUpdate()
     item.GenerateDisplayName()
     item.genesen = 42
@@ -100,8 +100,8 @@ func MakeSummaryArray() -> CovidCasesPerObjectIDP {
     item.cases_per_100k = 391.759457221597
     item.cases7_per_100k = 24.716684998208
     item.last_update = "24.09.2020, 00:00 Uhr"
-    item.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-    item.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
+    item.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+    item.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item.idLandkreis, last_update: item.datetime1000))
     item.GenerateDateTimeOfLastUpdate()
     item.GenerateDisplayName()
     item.genesen = 42
@@ -124,8 +124,8 @@ func MakeSummaryArray() -> CovidCasesPerObjectIDP {
     item2.cases_per_100k = 391.759457221597
     item2.cases7_per_100k = 23.716684998208
     item2.last_update = "25.09.2020, 00:00 Uhr"
-    item2.datetime1000 = GetCovidDataFromServerGermany.TranslateLastUpdateToInt64(dateString: item.last_update)
-    item2.dupprevent = (GetCovidDataFromServerGermany.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
+    item2.datetime1000 = ServerRequestHelpers.TranslateLastUpdateToInt64(dateString: item.last_update)
+    item2.dupprevent = (ServerRequestHelpers.CreateDuppreventField(idLandkreis: item2.idLandkreis, last_update: item2.datetime1000))
     item2.GenerateDateTimeOfLastUpdate()
     item2.GenerateDisplayName()
     item2.genesen = 35

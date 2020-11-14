@@ -192,7 +192,8 @@ class BackGroundTaskController: NSObject {
 
         // Apple said EarliestBeginDate should not be set to too far into the future.
         Logger.log.notice("Next execution at: \(execDateTime, privacy: .public)")
-
+        // UserStorageProvider.share.AppendItem("Next execution at: \(execDateTime)")
+        
         let request = BGAppRefreshTaskRequest(identifier: identifierRefreshTask)
         request.earliestBeginDate = execDateTime
 

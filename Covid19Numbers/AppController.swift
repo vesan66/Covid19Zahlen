@@ -63,6 +63,7 @@ public final class AppController: NSObject, AppControllerFunctions {
     
     private var backgroundTaskID: UIBackgroundTaskIdentifier?
     
+    private var backgroundWork: BackgroundWork?
     
     override private init() {
         super.init()
@@ -144,6 +145,17 @@ public final class AppController: NSObject, AppControllerFunctions {
     }
     
     
+    func displayIsOldDoRefresh() -> Bool {
+        Logger.funcStart.notice("ifDisplayIsOldDoRefresh")
+        var result = false
+        if self.obProps.latestTimeStampAtDisplay != self.obProps.latestTimeStampOfDB {
+            self.newDataInLocalDB()
+            result = true
+        }
+        return result
+    }
+    
+    
     private func GetAndDisplayData() {
         Logger.funcStart.notice("=======================*** GetAndDisplayData ***")
         self.obProps.appStatus = .LoadingDataFromDB
@@ -210,8 +222,7 @@ public final class AppController: NSObject, AppControllerFunctions {
     public func CalculateSummaryData() {
         Logger.funcStart.notice("CalculateSummaryData")
         self.sqliteMan.GetAllDaysOfCovidCasesForDisplayAsync(orderBy: UserStorage.share.sortOrder, loadedData: {
-            [weak self] dataForDisplay in
-            guard let self = self else { return }
+            dataForDisplay in
             DispatchQueue.main.async{
                 self.obProps.summarySheetData = dataForDisplay
                 Logger.data.notice("self.obProps.summarySheetData.cases.count = \(dataForDisplay.cases.count, privacy: .public)")
@@ -230,13 +241,13 @@ public final class AppController: NSObject, AppControllerFunctions {
         self.obPropsSumm.dataOfOneCounty = CovidCasesPerObjectIDP()
         
         self.sqliteMan.GetAllDaysOfOneCountyForDisplayAsync(idLandkreis: idLandkreis, orderBy: UserStorage.share.sortOrder, loadedData: {
-            [weak self] dataForDisplay in
-            guard let self = self else { return }
+            dataForDisplay in
             DispatchQueue.main.async{
                 if dataForDisplay.cases.count == 1 {
                     let item = dataForDisplay.cases[0]
                     self.obPropsSumm.dataOfOneCounty = item
-                    Logger.data.notice("self.obProps.dataOfOneCounty.casees.count = \(item.cases.count, privacy: .public)")
+                    self.obPropsSumm.raiseDisplayDataOfOneCounty()
+                    Logger.data.notice("self.obPropsSumm.dataOfOneCounty.cases.count = \(item.cases.count, privacy: .public)")
                 } else {
                     Logger.data.error("No or more then on return item.")
                 }
@@ -285,12 +296,14 @@ public final class AppController: NSObject, AppControllerFunctions {
     
     public func WantUpdateFrom_UserRefresh() {
         Logger.funcStart.notice("WantUpdateFrom_UserRefresh")
+        if displayIsOldDoRefresh() { return }
         self.updater.DoManualUpdateAsync()
     }
     
     
     private func wantUpdateFrom_AppAwake() {
         Logger.funcStart.notice("wantUpdateFrom_AppAwake")
+        if displayIsOldDoRefresh() { return }
         self.updater.DoReactivateAppUpdateAsync()
     }
     
@@ -413,30 +426,30 @@ public final class AppController: NSObject, AppControllerFunctions {
 // MARK: - Background Handler
 extension AppController {
     
+    
+    
     private func initializeBackGroundTaskManagement() {
-//
-////        // ** Processing **
-////        BackGroundTaskController.shared.RegisterBackgroundProcessingTask() // Processing
-////        BackGroundTaskController.shared.SetEstimationProcessingTaskFunction(function: { [weak self] in  // Processing
-////            guard let self = self else { return Estimation(false) }
-////            return self.EstimateNextExecutionTime()
-////        })
-////        BackGroundTaskController.shared.SetWorkloadProcessingTaskFunction(function: { [weak self] in // Processing
-////            guard let self = self else { return true }
-////            return self.GetDataFromServerByBackgroundTask()
-////        })
-//
-//
-//        // ** Refresh **
-//        BackGroundTaskController.shared.RegisterBackgroundRefreshTask() // Refresh
-//        BackGroundTaskController.shared.SetEstimationRefreshTaskFunction(function: { [weak self] in  // Refresh
+
+//        // ** Processing **
+//        BackGroundTaskController.shared.RegisterBackgroundProcessingTask() // Processing
+//        BackGroundTaskController.shared.SetEstimationProcessingTaskFunction(function: { [weak self] in  // Processing
 //            guard let self = self else { return Estimation(false) }
 //            return self.EstimateNextExecutionTime()
 //        })
-//        BackGroundTaskController.shared.SetWorkloadRefreshTaskFunction(function: { [weak self] in // Refresh
+//        BackGroundTaskController.shared.SetWorkloadProcessingTaskFunction(function: { [weak self] in // Processing
 //            guard let self = self else { return true }
 //            return self.GetDataFromServerByBackgroundTask()
 //        })
+
+
+        // ** Refresh **
+        BackGroundTaskController.shared.RegisterBackgroundRefreshTask() // Refresh
+        BackGroundTaskController.shared.SetEstimationRefreshTaskFunction(function: { // Refresh
+            return self.EstimateNextExecutionTime()
+        })
+        BackGroundTaskController.shared.SetWorkloadRefreshTaskFunction(function: { // Refresh
+            return self.GetDataFromServerByBackgroundTask()
+        })
     }
     
     
@@ -449,21 +462,33 @@ extension AppController {
     
     public func didEnterBackground() {
         Logger.funcStart.notice("*** Entering Background ***")
-//
-////        // ** Processing **
-////        BackGroundTaskController.shared.EnqueueNewBackgroundProcessingTask() // Processing
-//
-//
-//        // ** Refresh **
-//        BackGroundTaskController.shared.EnqueueNewBackgroundRefreshTask() // Refresh
+
+//        // ** Processing **
+//        BackGroundTaskController.shared.EnqueueNewBackgroundProcessingTask() // Processing
+
+
+        // ** Refresh **
+        BackGroundTaskController.shared.EnqueueNewBackgroundRefreshTask() // Refresh
     }
     
     
+//    private func EstimateNextExecutionTime() -> Estimation {
+//        if self.backgroundWork == nil {
+//            self.backgroundWork = BackgroundWork()
+//        }
+//        return self.backgroundWork!.EstimateNextExecutionTime()
+//    }
     private func EstimateNextExecutionTime() -> Estimation {
         return Estimation(true, Date(timeIntervalSinceNow: AppDefaultConfiguration.timeSpanUntilNextBackgroundFetch))
     }
     
     
+//    private func GetDataFromServerByBackgroundTask() -> Bool {
+//        if self.backgroundWork == nil {
+//            self.backgroundWork = BackgroundWork()
+//        }
+//        return self.backgroundWork!.wantUpdateFrom_BackgroundTask()
+//    }
     private func GetDataFromServerByBackgroundTask() -> Bool {
         return self.wantUpdateFrom_BackgroundTask()
     }

@@ -69,49 +69,49 @@ public class Updater: NSObject {
     fileprivate func ClearProcessingFlag() {
         Logger.funcStart.notice("ClearAnyUpdatePendingFlag")
         self.inProcess = UpdateProcessing.idle
+        self.overallUpdateResult = .undefined
     }
     
     
     // MARK: - Public Functions
     public func DoManualUpdateAsync() {
         Logger.funcStart.notice("DoManualUpdate")
-        self.UpdateSelector(.manual)
+        let _ = self.UpdateSelector(.manual)
     }
     
     public func DoReactivateAppUpdateAsync() {
         Logger.funcStart.notice("DoReactivateAppUpdate")
-        self.UpdateSelector(.onActivateApp)
+        let _ = self.UpdateSelector(.onActivateApp)
     }
     
     public func DoBackgroundUpdateAwait() -> Bool {
         Logger.funcStart.notice("DoBackgroundUpdate")
-        fatalError("Currently not supported")
-//        self.UpdateSelector(.backgroundTask)
-//        return false
+//        fatalError("Currently not supported")
+        return self.UpdateSelector(.backgroundTask) ?? false
     }
     
     public func DoInitialUpdateAsync() {
         Logger.funcStart.notice("DoInitialUpdate")
-        self.UpdateSelector(.initial)
+        let _ = self.UpdateSelector(.initial)
     }
     
     
     
-    private func UpdateSelector(_ kind: UpdateKind) {
+    private func UpdateSelector(_ kind: UpdateKind) -> Bool? {
         Logger.funcStart.notice("=======================UpdateSelector: Selected kind: \(kind.rawValue, privacy: .public)")
   
-        if AppController.share.sqliteMan.dbIsOpen == false { Logger.log.notice("SQLite not ready. Senseless to do anything."); return }
+        if AppController.share.sqliteMan.dbIsOpen == false { Logger.log.notice("SQLite not ready. Senseless to do anything."); return false}
         
-        if self.AnyUpdatePending() == true { Logger.log.notice("Skipping update, because ones pending."); return }
+        if self.AnyUpdatePending() == true { Logger.log.notice("Skipping update, because ones pending."); return false}
         
         let m_um: UpdateManager
         
         switch kind {
             case .backgroundTask:
-                Logger.log.error("Background processind deactivated.")
-                return
-//                self.inProcess = .background
-//                m_um = UpdateManager_BackgroundTask()
+//                Logger.log.error("Background processing with this function is deactivated.")
+//                return
+                self.inProcess = .background
+                m_um = UpdateManager_BackgroundTask()
             case .initial:
                 self.inProcess = .foreground
                 m_um = UpdateManager_Initial()
@@ -123,12 +123,23 @@ public class Updater: NSObject {
                 m_um = UpdateManager_Manual()
         }
         
-        if let q = self.GetQueue() {
-            q.async { [weak self] in
-                guard let self = self else { return }
-                self.Update(m_um)
+//        if let q = self.GetQueue() {
+//            q.async { [weak self] in
+//                guard let self = self else { return }
+//                self.Update(m_um)
+//            }
+//        }
+        
+        if self.inProcess == .foreground {
+            if let q = self.GetQueue() {
+                q.async { let _ = self.Update(m_um) }
+                return nil
             }
+        } else {
+            return self.Update(m_um)
         }
+        
+        return nil
     }
     
     
@@ -136,7 +147,7 @@ public class Updater: NSObject {
     
     //var callbackObj: CallBackObject?
     
-    private func Update(_ m_um: UpdateManager) {
+    private func Update(_ m_um: UpdateManager) -> Bool? {
         Logger.funcStart.notice("Update")
 
         m_um.InitializeSubModules()
@@ -147,7 +158,6 @@ public class Updater: NSObject {
         
         // Call the Update. At the end, the CallBackObject calls aftermath!
         let callbackObj = CallBackObject(updater: self, updateManager: m_um, updateIsAllowed: updateIsAllowed)
-        //callbackObj = CallBackObject(updater: self, updateManager: m_um, updateIsAllowed: updateIsAllowed)
         
         // IMPORTANT: Call the 'callbackObj'!
         if updateIsAllowed == .yes_allowed {
@@ -155,57 +165,116 @@ public class Updater: NSObject {
         } else {
             callbackObj.DoCallBack(updateResult: .undefined)
         }
-        
+
+        let result = (callbackObj.overallUpdateResult == .serverHasNoNewData || callbackObj.overallUpdateResult == .success) ? true : false
+        return result
     }
-    
+
     
     private func PerformUpdate(_ callBackObject: CallBackObject) {
         Logger.funcStart.notice("PerformUpdate")
-
-        // Get a new Instance for the Serverfetch
-        let getDataFromServer = GetCovidDataFromServerGermany()
         
-        // Use the given SQLite-Man
-        let sqliteMan = AppController.share.sqliteMan
-
-        // Get new Data from the Server
-        Logger.log.notice("Going to execute 'GetCasesForCountiesAsync'.")
-        getDataFromServer.GetCasesForCountiesAsync(){ newReceivedCases in
-            if let newReceivedCases = newReceivedCases {
-                Logger.data.notice("Received \(newReceivedCases.count, privacy: .public) from the servers.")
-                if newReceivedCases.count == 0 {
-                    // No new Data at the server!
-                    Logger.log.error("GetCasesForCountiesAsync returned 0 cases.")
-                    callBackObject.DoCallBack(updateResult: .serverHasNoNewData)
-                    return
-                } else {
-                    // Insert new Items in SQLite.
-                    Logger.log.notice("Going to insert Data: InsertItemsAsyncWithCallback().")
-                    sqliteMan.InsertItemsAsyncWithCallback(items: newReceivedCases, callbackObject: callBackObject)
-                    return
-                }
+        var result: Bool = false
+        var resultForCallback: PerformedUpdateStatus = .undefined
+        
+        defer {
+            callBackObject.DoCallBack(updateResult: resultForCallback)
+        }
+        
+        // Get the new Dataset
+        Logger.log.notice("*** Getting data from server.")
+        let requestResult = GetCompleteSetFromServer.getDataAwait()
+        
+        let covidCaseS = requestResult.1
+        result = requestResult.0
+        Logger.data.notice("Result of GetCompleteSetFromServer: \(result, privacy: .public)")
+        
+        // Log some results.
+        if result == true && covidCaseS.count == 0 {
+            Logger.log.error("GetCompleteSetFromServer returned 0 cases.")
+            resultForCallback = .serverHasNoNewData
+        }
+        
+        if result == false {
+            Logger.log.error("GetCompleteSetFromServer returned 'false'.")
+            resultForCallback = .failed
+        }
+        
+        // Insert new items into DB.
+        if result == true && covidCaseS.count > 0 {
+            Logger.log.notice("*** Inserting new Data into DB.")
+            let timeStampExampleOfNewCases = covidCaseS[0].datetime1000
+            result = self.insertItemsIntoSQLiteDB(covidCaseS, timeStampExampleOfNewCases)
+            Logger.data.notice("Result of insertItemsIntoSQLiteDB: \(result, privacy: .public)")
+            resultForCallback = ((result == true) ? .success : .failed)
+        }
+    }
+    
+    
+    func insertItemsIntoSQLiteDB(_ covidCaseS: CovidCaseS, _ dateTimeServerResult: DTAI.DateTime1000) -> Bool {
+        var result = false
+        var glob_CloseResult = false
+        var glob_OpenResult = false
+        
+        // Close Global DB
+        let glob_SQLITEman = AppController.share.sqliteMan
+        if glob_SQLITEman.dbIsOpen {
+            glob_CloseResult = glob_SQLITEman.CloseDataBaseAwait()
+            Logger.data.notice("Close of globDB returned: \(glob_CloseResult, privacy: .public)")
+        }
+        defer {
+            if glob_CloseResult {
+                glob_OpenResult = glob_SQLITEman.OpenDataBaseAwait()
+                Logger.data.notice("Open of globDB returned: \(glob_OpenResult, privacy: .public)")
+            }
+        }
+        
+        // Open local SQLite Instance.
+        let sQLiteMan = DBManager()
+        if sQLiteMan.OpenDataBaseAwait() {
+            Logger.data.notice("Local SQLite-Instance was opened.")
+            
+            // Insert the new Items
+            sQLiteMan.InsertItemsAwait(items: covidCaseS)
+            
+            if sQLiteMan.CloseDataBaseAwait() {
+                Logger.data.notice("Local SQLite-Instance was closed.")
+            }
+            
+            // Check if the new TimeStamp in UserData is OK.
+            let newTimeStampInLocalDB = self.GetLatestTimeStampOfLocalDatabase()
+            if newTimeStampInLocalDB == dateTimeServerResult {
+                Logger.log.notice("*** DB update successfully. ***")
+                // UserStorageProvider.share.AppendItem("*** DB update successfully. ***")
+                result = true
             } else {
-                // ServerError?
-                Logger.log.error("GetCasesForCountiesAsync returned NIL.")
-                callBackObject.DoCallBack(updateResult: .failed)
-                return
+                Logger.log.error("*** DB update was NOT successfully! ***")
+                // UserStorageProvider.share.AppendItem("--- DB update was NOT successfully! ---")
             }
         }
+        
+        return result
     }
     
     
-    private func WaitForResult(monitor: CallBackObject, timetowait: TimeInterval) -> DispatchTimeoutResult {
-        let timeOutInSeconds = DispatchTime.now() + DispatchTimeInterval.seconds(Int(timetowait))
-        while DispatchTime.now() <= timeOutInSeconds {
-            if monitor.finished == true {
-                return .success
-            }
-            sleep(1)
-            print("Waiting ... " + DispatchTime.now().rawValue.description)
-        }
-        return .timedOut
+    func GetLatestTimeStampOfLocalDatabase() -> DTAI.DateTime1000 {
+        var result = DTAI.DateTime1000()
+        self.executeOnMain() { result = UserStorage.share.latestTimeStampAtLocalDB }
+        return result
     }
     
+    
+    func executeOnMain(execute block: () -> Void) {
+        if Thread.isMainThread {
+            block()
+        } else {
+          DispatchQueue.main.sync {
+            block()
+          }
+        }
+    }
+    
+    var overallUpdateResult: PerformedUpdateStatus = .undefined
     
     func AfterMath(_ m_um: UpdateManager, updateIsAllowed: IsUpdateAllowed, updateResultIn: PerformedUpdateStatus ) {
         Logger.funcStart.notice("AfterMath")
@@ -227,7 +296,9 @@ public class Updater: NSObject {
         
         DispatchQueue.main.async {
             Logger.log.notice("AfterMathEnums: updateIsAllowed = \(updateIsAllowed, privacy: .public), updateResult = \(updateResult, privacy: .public)")
-        
+            
+            self.overallUpdateResult = updateResult
+            
             let obProps  = AppController.appFunctions.GetObservedProperties()
             let interCom = AppController.appFunctions.GetInterCom()
             
@@ -259,9 +330,6 @@ public class Updater: NSObject {
         }
         Logger.log.notice("AfterMath-Result: \(result_After, privacy: .public)")
     }
-    
-    
-
 }
 
 
@@ -270,7 +338,7 @@ public class CallBackObject {
     private var updateIsAllowed = IsUpdateAllowed.undefined
     public private(set) var updater: Updater?
     public var finished: Bool = false
-    
+    public var overallUpdateResult = PerformedUpdateStatus.undefined
     private init() { }
     
     
@@ -281,6 +349,7 @@ public class CallBackObject {
     }
     
     func DoCallBack(updateResult: PerformedUpdateStatus) {
+        Logger.funcStart.notice("DoCallBack")
         
         // Always set 'finished'. This execution is one-shot.
         defer { self.finished = true }
@@ -299,6 +368,8 @@ public class CallBackObject {
         
         // Workload.
         updater.AfterMath(updateManager, updateIsAllowed: self.updateIsAllowed, updateResultIn: updateResult)
+        self.overallUpdateResult = updater.overallUpdateResult
+        Logger.data.notice("overallUpdateResult : \(self.overallUpdateResult, privacy: .public)")
         updater.ClearProcessingFlag()
         self.updateManager = nil
         self.updater = nil

@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import os.log
 
 public class ObservedProperties: ObservableObject {
     
     @Published var appStatus = AppStatusEnum.NoError
     
-    //@Published var newDataLoadedForDisplay = UUID()  // Means: New Data are storde here for Display.
-    @Published var displayNewData = UUID()           // Means: Pleas display the here given Data.
+    @Published var displayNewData = UUID()
+    @Published var displayNewDataOfOneCounty = UUID()
     
     @Published var dataForDisplay = CovidCasesPerObjectIDSP()
     @Published var summarySheetData = CovidCasesPerObjectIDSP()
@@ -26,19 +27,21 @@ public class ObservedProperties: ObservableObject {
     @Published var latestTimeStampAtDisplay: Int64 = 0
     @Published var latestTimeStampOfDB: Int64 = 0
     
-//    public func setNewDataLoadedForDisplay() {
-//        self.newDataLoadedForDisplay = UUID()
-//    }
-    
     public func raiseDisplayData() {
+        Logger.funcStart.notice("raiseDisplayData")
         self.displayNewData = UUID()
+    }
+    
+    public func raiseDisplayDataOfOneCounty() {
+        Logger.funcStart.notice("raiseDisplayDataOfOneCounty")
+        self.displayNewDataOfOneCounty = UUID()
     }
     
     public func clear() {
         self.appStatus = AppStatusEnum.NoError
         
-        //self.newDataLoadedForDisplay = UUID()
         self.displayNewData = UUID()
+        self.displayNewDataOfOneCounty = UUID()
         
         self.dataForDisplay = CovidCasesPerObjectIDSP()
         self.summarySheetData = CovidCasesPerObjectIDSP()
@@ -61,7 +64,6 @@ public class InterCom: ObservableObject {
     
     public func SetNewDataInLocalDB() {
         self.newDataInLocalDB = UUID()
-        //self.objectWillChange.send()
     }
     
     public func clear() {

@@ -131,7 +131,7 @@ extension AllItemsView {
     func NavLinkItem(item: CovidCasesPerObjectIDP)-> some View {
         let v =
             NavigationLink(destination:
-                            self.NavLinkAction(idLandkreis: item.idLandkreis)// CountyDetail(county: item)
+                            self.NavLinkAction(idLandkreis: item.idLandkreis)
             ) {
             ItemOfListView(item: item, displayStarFunction: true, favoritesAreChanged: self.$favoritesAreChanged)
                 
@@ -140,7 +140,6 @@ extension AllItemsView {
     }
     
     func NavLinkAction(idLandkreis: String) -> some View {
-
         let v = SummarySheetCountyView().onAppear(perform: {
             self.appFunctions.GetDataForOneCounty(idLandkreis: idLandkreis)
         })
