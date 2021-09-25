@@ -221,7 +221,7 @@ extension RequestSession: URLSessionDataDelegate {
         guard let response = response as? HTTPURLResponse,
             (200...299).contains(response.statusCode),
             let mimeType = response.mimeType,
-            mimeType == "text/plain" else {
+            (mimeType == "text/plain" || mimeType == "application/json") else {
             Logger.log.error("Error: HTTP request failed")
             completionHandler(.cancel)
             return
