@@ -1002,7 +1002,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Covid19Numbers/Covid19Numbers.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "Covid19Numbers/Preview\\ Content";
 				DEVELOPMENT_TEAM = 3392265EU8;
 				ENABLE_PREVIEWS = YES;
@@ -1011,7 +1011,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.04;
+				MARKETING_VERSION = 1.07;
 				OTHER_SWIFT_FLAGS = "-DMAINAPP";
 				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1028,7 +1028,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Covid19Numbers/Covid19Numbers.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "Covid19Numbers/Preview\\ Content";
 				DEVELOPMENT_TEAM = 3392265EU8;
 				ENABLE_PREVIEWS = YES;
@@ -1037,7 +1037,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.04;
+				MARKETING_VERSION = 1.07;
 				OTHER_SWIFT_FLAGS = "-DMAINAPP";
 				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1053,7 +1053,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = Covid19NumbersWidgets/Covid19NumbersWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = 3392265EU8;
 				INFOPLIST_FILE = Covid19NumbersWidgets/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1061,7 +1061,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.04;
+				MARKETING_VERSION = 1.07;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers.Covid19NumbersWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1077,7 +1077,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = Covid19NumbersWidgets/Covid19NumbersWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = 3392265EU8;
 				INFOPLIST_FILE = Covid19NumbersWidgets/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1085,7 +1085,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.04;
+				MARKETING_VERSION = 1.07;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers.Covid19NumbersWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1099,7 +1099,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = CountyWidgetIntentExtension/CountyWidgetIntentExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = 3392265EU8;
 				INFOPLIST_FILE = CountyWidgetIntentExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1107,7 +1107,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.04;
+				MARKETING_VERSION = 1.07;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers.CountyWidgetIntentExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1121,7 +1121,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = CountyWidgetIntentExtension/CountyWidgetIntentExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = 3392265EU8;
 				INFOPLIST_FILE = CountyWidgetIntentExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1129,7 +1129,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.04;
+				MARKETING_VERSION = 1.07;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YourName.Covid19Numbers.CountyWidgetIntentExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
