@@ -17,7 +17,8 @@ public final class GetCompleteSetFromServer: NSObject {
     public static func getDataAwait() -> returnTuple {
         Logger.funcStart.notice("getDataAwait")
         
-        let magicValueCounties: Int = 412
+        let magicValueCounties: Int = 412   // This is the Maximum.
+        let minimumGoodCounties: Int = 400  // Some tolerance.
         
         // Init empties
         var cases = CovidCaseS()
@@ -32,7 +33,7 @@ public final class GetCompleteSetFromServer: NSObject {
             let casesBaseData = getBaseData.getDataAwait()
             Logger.data.notice("Got base items. Count = \(casesBaseData.count, privacy: .public)")
             
-            result = ((casesBaseData.count > 0) && (casesBaseData.count == magicValueCounties))
+            result = ((casesBaseData.count > 0) && (casesBaseData.count >= minimumGoodCounties) && (casesBaseData.count <= magicValueCounties))
             if result {
                 cases = casesBaseData
             }
